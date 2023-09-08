@@ -52,7 +52,7 @@ func (reader *reader) unreadRune() error {
 	} else {
 		reader.pos.col--
 	}
-	
+
 	return reader.r.UnreadRune()
 }
 

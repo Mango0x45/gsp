@@ -65,7 +65,8 @@ func (reader *reader) parseNode() (AstNode, error) {
 		return AstNode{}, err
 	}
 
-	loop: for {
+loop:
+	for {
 		if err := reader.skipSpaces(); err != nil {
 			return AstNode{}, err
 		}
@@ -96,7 +97,7 @@ func (reader *reader) parseNode() (AstNode, error) {
 func (reader *reader) parseNodeName() (string, error) {
 	var r rune
 	var err error
-	
+
 	if err = reader.skipSpaces(); err != nil {
 		return "", err
 	}
@@ -107,12 +108,12 @@ func (reader *reader) parseNodeName() (string, error) {
 		return "", err
 	} else if !validNameStartChar(r) {
 		return "", invalidSyntax{
-			pos: reader.pos,
+			pos:      reader.pos,
 			expected: "node name",
-			found: fmt.Sprintf("invalid character ‘%c’", r),
+			found:    fmt.Sprintf("invalid character ‘%c’", r),
 		}
 	}
-	
+
 	for validNameChar(r) {
 		sb.WriteRune(r)
 		if r, err = reader.readRune(); err != nil {
@@ -134,7 +135,8 @@ func (reader *reader) parseText() (AstNode, error) {
 	sb := strings.Builder{}
 	node := AstNode{Type: Tagless}
 
-	loop: for {
+loop:
+	for {
 		r, err := reader.readRune()
 		if err != nil {
 			return AstNode{}, err
@@ -164,9 +166,9 @@ func (reader *reader) parseText() (AstNode, error) {
 			}
 			if r != '\\' && r != '@' && r != '}' {
 				return AstNode{}, invalidSyntax{
-					pos: reader.pos,
+					pos:      reader.pos,
 					expected: "valid escape sequence (‘\\\\’, ‘\\@’, or ‘\\}’)",
-					found: fmt.Sprintf("‘\\%c’", r),
+					found:    fmt.Sprintf("‘\\%c’", r),
 				}
 			}
 			fallthrough
@@ -185,7 +187,8 @@ func (reader *reader) parseText() (AstNode, error) {
 func (reader *reader) parseAttrs() ([]Attr, error) {
 	attrs := make([]Attr, 0, 2)
 
-	loop: for {
+loop:
+	for {
 		if err := reader.skipSpaces(); err != nil {
 			return nil, err
 		}
@@ -247,7 +250,7 @@ func (reader *reader) parseAttrs() ([]Attr, error) {
 		}
 		attrs = append(attrs, attr)
 	}
-	
+
 	return attrs, nil
 }
 
@@ -258,9 +261,9 @@ func (reader *reader) parseString() (string, error) {
 		return "", err
 	} else if r != '"' {
 		return "", invalidSyntax{
-			pos: reader.pos,
+			pos:      reader.pos,
 			expected: "double-quoted string",
-			found: fmt.Sprintf("‘%c’", r),
+			found:    fmt.Sprintf("‘%c’", r),
 		}
 	}
 
@@ -281,9 +284,9 @@ func (reader *reader) parseString() (string, error) {
 
 			if r != '\\' && r != '"' {
 				return "", invalidSyntax{
-					pos: reader.pos,
+					pos:      reader.pos,
 					expected: "valid escape sequence (‘\\\\’ or ‘\\\"’)",
-					found: fmt.Sprintf("‘\\%c’", r),
+					found:    fmt.Sprintf("‘\\%c’", r),
 				}
 			}
 
