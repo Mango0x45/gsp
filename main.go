@@ -27,11 +27,7 @@ func main() {
 	fmt.Print("\n")
 }
 
-func die(strings ...any) {
-	fmt.Fprint(os.Stderr, os.Args[0])
-	for _, s := range strings {
-		fmt.Fprintf(os.Stderr, ": %v", s)
-	}
-	fmt.Fprint(os.Stderr, "\n")
+func die(e error) {
+	fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], e)
 	os.Exit(1)
 }
