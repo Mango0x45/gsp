@@ -1,5 +1,5 @@
 PREFIX = /usr/local
-DPREFIX = ${DESTDIR}/${PREFIX}
+DPREFIX = ${DESTDIR}${PREFIX}
 
 target = gsp
 sources = main.go \
