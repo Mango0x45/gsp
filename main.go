@@ -9,15 +9,29 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s file\n", os.Args[0])
-		os.Exit(1)
+	if len(os.Args) == 1 {
+		process("-")
 	}
-	file, err := os.Open(os.Args[1])
-	if err != nil {
-		die(err)
+
+	for _, arg := range os.Args[1:] {
+		process(arg)
 	}
-	defer file.Close()
+}
+
+func process(filename string) {
+	var file *os.File
+	var err error
+
+	if filename == "-" {
+		file = os.Stdin
+	} else {
+		file, err = os.Open(filename)
+		if err != nil {
+			die(err)
+		}
+		defer file.Close()
+	}
+
 	ast, err := parser.ParseFile(file)
 	if err != nil {
 		die(err)
