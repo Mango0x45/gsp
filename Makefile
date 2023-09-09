@@ -13,6 +13,9 @@ gsp: ${sources}
 	go build
 
 install:
-	mkdir -p ${DPREFIX}/bin ${DPREFIX}/share/man/man1
+	mkdir -p ${DPREFIX}/bin \
+	         ${DPREFIX}/share/man/man1 \
+	         ${DPREFIX}/share/man/man5
 	cp ${target}   ${DPREFIX}/bin
 	cp ${target}.1 ${DPREFIX}/share/man/man1
+	cp ${target}.5 ${DPREFIX}/share/man/man5
