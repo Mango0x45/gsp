@@ -1,0 +1,41 @@
+.Dd $Mdocdate: September 9 2023 $
+.Dt GSP 1
+.Os
+.Sh NAME
+.Nm gsp
+.Nd better syntax for HTML
+.Sh SYNOPSIS
+.Nm
+.Op Ar
+.Sh DESCRIPTION
+.Nm
+is a utility to transpile a
+.Xr gsp 5
+formatted plain\-text file into valid HTML.
+Files provided as command\-line arguments will be transpiled with the result
+being written to the standard output.
+If no arguments or the special filename
+.Pa -
+is provided, then input will be read from the standard input.
+.Sh EXIT STATUS
+.Ex -std gsp
+.Sh EXAMPLES
+Compile the files
+.Pa head.gsp
+and
+.Pa tail.gsp
+into one HTML document:
+.Pp
+.Dl $ gsp head.gsp tail.gsp >out.html
+.Pp
+Expand
+.Xr m4 1
+macros before transpiling to HTML:
+.Pp
+.Dl $ m4 foo.gsp | gsp
+.Sh SEE ALSO
+.Xr m4 1 ,
+.Xr sed 1 ,
+.Xr gsp 5
+.Sh AUTHORS
+.An Thomas Voss Aq Mt mail@thomasvoss.com
