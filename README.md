@@ -18,6 +18,8 @@ to write JavaScript/Ruby/etc. scripts, which just isn’t good enough.
 ## Syntax Example
 
 ```gsp
+!html{}
+
 html lang="en" {
   head {
     meta charset="UTF-8"
