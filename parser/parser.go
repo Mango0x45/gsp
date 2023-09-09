@@ -12,9 +12,11 @@ import (
 type nodeType uint
 
 const (
-	Normal nodeType = iota
+	DocType nodeType = iota
+	Normal
 	Tagless
 	Text
+	XmlDocType
 )
 
 type Attr struct {
@@ -31,7 +33,66 @@ type AstNode struct {
 
 func ParseFile(file *os.File) (AstNode, error) {
 	r := reader{r: bufio.NewReader(file)}
-	return r.parseNode()
+	return r.parseDocument()
+}
+
+func (reader *reader) parseDocument() (AstNode, error) {
+	document := AstNode{Type: Tagless}
+	if doctype, err, exists := reader.parseDocType(); err != nil {
+		return AstNode{}, err
+	} else if exists {
+		document.Children = append(document.Children, doctype)
+	}
+
+	if node, err := reader.parseNode(); err != nil {
+		return AstNode{}, err
+	} else {
+		document.Children = append(document.Children, node)
+	}
+
+	return document, nil
+}
+
+func (reader *reader) parseDocType() (AstNode, error, bool) {
+	doctype := AstNode{}
+
+	r, err := reader.readNonSpaceRune()
+	if err != nil {
+		return AstNode{}, err, false
+	}
+
+	switch r {
+	case '!':
+		doctype.Type = DocType
+	case '?':
+		doctype.Type = XmlDocType
+	default:
+		return AstNode{}, reader.unreadRune(), false
+	}
+
+	if attrs, err := reader.parseAttrs(); err != nil {
+		return AstNode{}, err, false
+	} else {
+		doctype.Attrs = attrs
+	}
+
+	// The above call to reader.parseAttrs() guarantees that we have the ‘{’
+	// token.
+	if _, err := reader.readRune(); err != nil {
+		return AstNode{}, err, false
+	}
+
+	if r, err := reader.readNonSpaceRune(); err != nil {
+		return AstNode{}, err, false
+	} else if r != '}' {
+		return AstNode{}, invalidSyntax{
+			pos:      reader.pos,
+			expected: "empty body (doctypes must have empty bodies)",
+			found:    fmt.Sprintf("‘%c’\n", r),
+		}, false
+	}
+
+	return doctype, nil, true
 }
 
 func (reader *reader) parseNode() (AstNode, error) {

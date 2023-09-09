@@ -7,6 +7,8 @@ import (
 	"git.thomasvoss.com/gsp/parser"
 )
 
+var xml = false
+
 var stringEscapes = map[rune]string{
 	'"': "&quot;",
 	'&': "&amp;",
@@ -17,6 +19,24 @@ func PrintHtml(ast parser.AstNode) {
 	if ast.Type == parser.Text {
 		fmt.Print(ast.Text)
 		return
+	}
+
+	if ast.Type == parser.DocType || ast.Type == parser.XmlDocType {
+		if ast.Type == parser.DocType {
+			fmt.Print("<!DOCTYPE")
+		} else {
+			xml = true
+			fmt.Print("<?xml")
+		}
+
+		for _, a := range ast.Attrs {
+			printAttr(a)
+		}
+
+		if ast.Type == parser.XmlDocType {
+			fmt.Print("?")
+		}
+		fmt.Print(">")
 	}
 
 	if ast.Type == parser.Normal {
@@ -44,22 +64,14 @@ func PrintHtml(ast parser.AstNode) {
 		}
 
 		for _, a := range notClasses {
-			fmt.Printf(" %s", a.Key)
-			if a.Value == "" {
-				continue
-			}
-			fmt.Print("=\"")
-			for _, r := range a.Value {
-				if v, ok := stringEscapes[r]; ok {
-					fmt.Print(v)
-				} else {
-					fmt.Printf("%c", r)
-				}
-			}
-			fmt.Print("\"")
+			printAttr(a)
 		}
 
-		fmt.Print(">")
+		if xml && len(ast.Children) == 0 {
+			fmt.Print("/>")
+		} else {
+			fmt.Print(">")
+		}
 	}
 
 	if len(ast.Children) == 0 {
@@ -82,6 +94,21 @@ func PrintHtml(ast parser.AstNode) {
 
 	if ast.Type == parser.Normal {
 		fmt.Printf("</%s>", ast.Text)
+	}
+}
+
+func printAttr(a parser.Attr) {
+	fmt.Printf(" %s", a.Key)
+	if a.Value != "" {
+		fmt.Print("=\"")
+		for _, r := range a.Value {
+			if v, ok := stringEscapes[r]; ok {
+				fmt.Print(v)
+			} else {
+				fmt.Printf("%c", r)
+			}
+		}
+		fmt.Print("\"")
 	}
 }
 
