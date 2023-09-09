@@ -46,7 +46,7 @@ func PrintHtml(ast parser.AstNode) {
 		for _, a := range notClasses {
 			fmt.Printf(" %s", a.Key)
 			if a.Value == "" {
-				break
+				continue
 			}
 			fmt.Print("=\"")
 			for _, r := range a.Value {
