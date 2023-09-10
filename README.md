@@ -7,6 +7,11 @@ far too bloated, visually polluting your documents.
 support for such things, just use a programming- or macro language such as
 Python or M4.
 
+## Documentation
+
+Documentation for the transpiler can be found in the `gsp(1)` manual.
+Documentation for the language can be found in the `gsp(5)` manual.
+
 ## Why Not Use Pug or [INSERT LANGUAGE HERE]
 
 Simply put, they are all trash.  Pug has decent syntax but requires you use
