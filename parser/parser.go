@@ -12,7 +12,7 @@ import (
 type nodeType uint
 
 const (
-	Normal = iota
+	Normal nodeType = iota
 	Tagless
 	Text
 )
