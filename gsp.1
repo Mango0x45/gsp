@@ -3,20 +3,29 @@
 .Os
 .Sh NAME
 .Nm gsp
-.Nd better syntax for HTML
+.Nd better syntax for HTML and XML
 .Sh SYNOPSIS
 .Nm
 .Op Ar
 .Sh DESCRIPTION
 .Nm
-is a utility to transpile a
+is a utility to transpile
 .Xr gsp 5
-formatted plain\-text file into valid HTML.
+formatted plain\-text files into valid HTML and XML.
 Files provided as command\-line arguments will be transpiled with the result
 being written to the standard output.
 If no arguments or the special filename
 .Pa -
 is provided, then input will be read from the standard input.
+.Pp
+By default files are transpiled to HTML, where tags with no children take the
+form of
+.Ql <tag>
+as opposed to XML where they take the form of
+.Ql <tag/> .
+If the document begins with an XML document type, then
+.Nm
+will transpile to XML.
 .Sh EXIT STATUS
 .Ex -std gsp
 .Sh EXAMPLES
@@ -30,7 +39,7 @@ into one HTML document:
 .Pp
 Expand
 .Xr m4 1
-macros before transpiling to HTML:
+macros before transpiling:
 .Pp
 .Dl $ m4 foo.gsp | gsp
 .Sh SEE ALSO
