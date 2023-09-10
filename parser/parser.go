@@ -31,18 +31,27 @@ type AstNode struct {
 
 func ParseFile(file *os.File) (AstNode, error) {
 	r := reader{r: bufio.NewReader(file)}
-	return r.parseDocument()
-}
-
-func (reader *reader) parseDocument() (AstNode, error) {
 	document := AstNode{Type: Tagless}
-	if node, err := reader.parseNode(); err != nil {
-		return AstNode{}, err
-	} else {
-		document.Children = append(document.Children, node)
-	}
 
-	return document, nil
+	for {
+		if _, err := r.readNonSpaceRune(); err == io.EOF {
+			return document, nil
+		} else if err != nil {
+			return AstNode{}, err
+		} else if err := r.unreadRune(); err != nil {
+			return AstNode{}, err
+		}
+
+		if err := r.skipSpaces(); err != nil {
+			return AstNode{}, err
+		}
+
+		if node, err := r.parseNode(); err != nil {
+			return AstNode{}, err
+		} else {
+			document.Children = append(document.Children, node)
+		}
+	}
 }
 
 func (reader *reader) parseNode() (AstNode, error) {
