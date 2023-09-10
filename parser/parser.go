@@ -27,6 +27,7 @@ type AstNode struct {
 	Text     string
 	Attrs    []Attr
 	Children []AstNode
+	Newline  bool
 }
 
 func ParseFile(file *os.File) (AstNode, error) {
@@ -54,64 +55,69 @@ func ParseFile(file *os.File) (AstNode, error) {
 	}
 }
 
-func (reader *reader) parseNode() (AstNode, error) {
-	if err := reader.skipSpaces(); err != nil {
-		return AstNode{}, err
+func (reader *reader) parseNode() (node AstNode, err error) {
+	if err = reader.skipSpaces(); err != nil {
+		return
 	}
 
-	if r, err := reader.peekRune(); err != nil {
-		return AstNode{}, err
-	} else if r == '-' {
+	r, err := reader.peekRune()
+	if err != nil {
+		return
+	}
+
+	switch r {
+	case '-':
 		return reader.parseText()
+	case '>':
+		node.Newline = true
+		if _, err = reader.readRune(); err != nil {
+			return
+		}
 	}
 
-	node := AstNode{}
-	if name, err := reader.parseNodeName(); err != nil {
-		return AstNode{}, err
+	if node.Text, err = reader.parseNodeName(); err != nil {
+		return
 	} else {
 		node.Type = Normal
-		node.Text = name
 	}
 
-	if attrs, err := reader.parseAttrs(); err != nil {
-		return AstNode{}, err
-	} else {
-		node.Attrs = attrs
+	if node.Attrs, err = reader.parseAttrs(); err != nil {
+		return
 	}
 
 	// The above call to reader.parseAttrs() guarantees that we have the ‘{’
 	// token.
-	if _, err := reader.readRune(); err != nil {
-		return AstNode{}, err
+	if _, err = reader.readRune(); err != nil {
+		return
 	}
 
 loop:
 	for {
-		if err := reader.skipSpaces(); err != nil {
-			return AstNode{}, err
+		if err = reader.skipSpaces(); err != nil {
+			return
 		}
 
-		if r, err := reader.peekRune(); err == io.EOF {
+		if r, err = reader.peekRune(); err == io.EOF {
 			return AstNode{}, eof{}
 		} else if err != nil {
-			return AstNode{}, err
+			return
 		} else if r == '}' {
 			break loop
 		}
 
-		if n, err := reader.parseNode(); err != nil {
-			return AstNode{}, err
+		var n AstNode
+		if n, err = reader.parseNode(); err != nil {
+			return
 		} else {
 			node.Children = append(node.Children, n)
 		}
 	}
 
 	// The above loop guarantees that we have the ‘}’ token.
-	if _, err := reader.readRune(); err != nil {
-		return AstNode{}, err
+	if _, err = reader.readRune(); err != nil {
+		return
 	}
-
-	return node, nil
+	return
 }
 
 func (reader *reader) parseNodeName() (string, error) {

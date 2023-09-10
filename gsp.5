@@ -209,7 +209,7 @@ After
 <foo><bar>Hello World</bar><baz>Hello World</baz></foo>
 .Ed
 .Pp
-The one exception to this use is when using embedded nodes.
+One exception to this use is when using embedded nodes.
 If your literal text contains an embedded node, then whitespace around the node
 is preserved:
 .Bd -literal -offset indent
@@ -225,8 +225,8 @@ After
 <foo>Hello <bar>there</bar> world!</foo>
 .Ed
 .Pp
-Therefore if you would like to remove the whitespace, you need to manually
-compact your document:
+Therefore if you would like to remove the whitespace when working with literal
+text, you need to manually compact your document:
 .Bd -literal -offset indent
 Before
 
@@ -238,6 +238,32 @@ foo {-
 After
 
 <foo>Hello<bar>there</bar>world!</foo>
+.Ed
+.Pp
+Sometimes it is also useful to have a newline between nodes, especially when
+working with
+.Sq code
+tags nested within a
+.Sq pre
+tag.
+To specify that you want a newline to be placed after a node, you can prefix the
+node name with a greater-than symbol
+.Pq Sq > :
+.Bd -literal -offset indent
+Before
+
+pre {
+  >code {-foo}
+  >code {-bar}
+  code  {-baz}
+}
+.Ed
+.Bd -literal -offset indent
+After
+
+<pre><code>foo</code>
+<code>bar</code>
+<code>baz</code></pre>
 .Ed
 .Sh SEE ALSO
 .Xr gsp 1
