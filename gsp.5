@@ -1,11 +1,277 @@
-.Dd $Mdocdate: September 9 2023 $
+.Dd $Mdocdate: September 10 2023 $
 .Dt GSP 5
 .Os
 .Sh NAME
 .Nm gsp
 .Nd language reference for gsp
 .Sh DESCRIPTION
+The
+.Nm
+language is an alternative language to HTML and XML which can be transpiled into
+either by making use of the
+.Xr gsp 1
+transpiler.
+The
+.Nm
+language allows you to structure data in the same manner as XML while offering
+an easier\-to\-read and less verbose syntax, and also some nice shortcuts for
+working with HTML.  An example
+.Nm
+document might look as follows:
+.Bd -literal -offset indent
+!html{}
+
+html lang="en" {
+  head {
+    meta charset="UTF-8"
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    link href="/favicon.svg" rel="shortcut icon" type="image/svg"
+    link href="/style.svg" rel="stylesheet"
+    title {-My Website Title}
+  }
+  body {
+    p #my-id  {- This is a paragraph with the id ‘my-id’     }
+    p .my-cls {- This is a paragraph with the class ‘my-cls’ }
+
+    p
+      #some-id
+      .class-1
+      .class-2
+      key-1="value-1"
+      key-2 = "value-2"
+    {-
+      This paragraph has an ID, two classes, and two additional attributes.  GSP
+      allows us to use the ‘#ident’ and ‘.ident’ syntaxes as shorthands for
+      applying IDs, and classes.  This is a text node, so nothing is being
+      interpreted as GSP nodes, but we can include them inline if we want.  As
+      an example, here is some @em {-emphatic} text.  Your inline nodes can also
+      have attributes @em #id .cls {-just like a regular node}.
+    }
+  }
+}
+.Ed
+.Pp
+As can be seen in the above example, nodes in
+.Nm
+take the form of
+.Ql name attributes {...}
+as opposed to the more verbose
+.Ql <name attributes>...</name> .
+.Sh LANGUAGE SYNTAX
+.Ss Nodes
+Nodes are the central building block of a
+.Nm
+document, and take the form of
+.Ql name attributes {...} .
+For example, a footer node with the attributes
+.Sq foo
+and
+.Sq bar
+and no child nodes is written as:
+.Pp
+.Bd -literal -offset indent
+footer foo bar {}
+.Ed
+.Pp
+To nest nodes within other nodes, simply place them within the braces.
+As such, the following defines a footer with the attributes
+.Sq foo
+and
+.Sq bar
+with two empty div\-nodes as children:
+.Pp
+.Bd -literal -offset indent
+footer foo bar { div{} div{} }
+.Ed
+.Ss Node names
+Node names follow the exact same naming rules as names do in XML.
+See the XML references in
+.Sx SEE ALSO
+for more details.
+.Ss Attributes
+Attributes are optional components of a node.
+They take the form of an attribute name and an optional attribute value.
+To specify an attribute, simply write the attribute name:
+.Pp
+.Bd -literal -offset indent
+name
+.Ed
+.Pp
+If you want to provide a value, you must follow the name with an equals sign
+.Pq Sq =
+and then wrap the value in double quotes
+.Pq Sq \(dq :
+.Pp
+.Bd -literal -offset indent
+name="value"
+.Ed
+.Pp
+You can optionally include whitespace for visual clarity, and double quotes and
+backslashes
+.Pq Sq \e
+can be escaped using a backslash:
+.Pp
+.Bd -literal -offset indent
+name = "he said \e"hello there\e""
+.Ed
+.Pp
+Like with node names, the details about which characters are allowed within an
+attribute name are detailed in the XML reference found in the
+.Sx SEE ALSO
+section of this manual.
+.Ss HTML IDs and -classes
+When transpiling to HTML, you will be wanting to use IDs and classes all of the
+time.
+Due to the frequency of use of these parts of HTML,
+.Nm
+offers a shorthand syntax for specifying them.
+The shorthand syntax looks like the equivalent CSS selectors for said IDs and
+classes.
+Valueless attributes prefixed with a period
+.Pq Sq \&.
+or hash
+.Pq Sq #
+are transpiled to classes and IDs respectively.
+Therefore the following two examples are identical:
+.Bd -literal -offset indent
+div #foo .bar .baz {
+  div .bar {}
+}
+.Ed
+.Bd -literal -offset indent
+div id="foo" class="bar baz" {
+  div class="bar" {}
+}
+.Ed
+.Ss Document types
+Both HTML and XML make use of document types at the start of the document.  In
+HTML the document type is of the form
+.Ql <!DOCTYPE attributes>
+while in XML the document type is of the form
+.Ql <?xml attributes?> .
+You can specify a document type in
+.Nm
+by using the special node name
+.Sq \&!
+or
+.Sq \&?
+for an HTML- or XML document type respectively.
+Unlike with the usual node name, you do not need to include whitespace between
+the special node name and the attributes.
+The following example includes a document type that will transpile into
+.Ql <!DOCTYPE html> :
+.Bd -literal -offset indent
+!html{}
+html {
+  head {...}
+  body {...}
+}
+.Ed
+.Pp
+Here is an example of using an XML document type:
+.Bd -literal -offset indent
+?version="1.1" encoding="UTF-8"{}
+document {...}
+.Ed
+.Pp
+You may only specify one document type, and it must be the first node of the
+document.
+.Ss Literal text
+If you want to include literal text within a node you can make use of the
+special node name
+.Sq - .
+Unlike with the usual node name, you do not need to include whitespace between
+the special node name and the attributes.
+The following example shows how you can set a page title and paragraph text:
+.Bd -literal -offset indent
+!html{}
+
+html {
+  head {
+    title {-My Amazing Website}
+  }
+
+  body {
+    p {-
+      Welcome to my website!  Here on my website you can find cute cat pictures,
+      amongst other things.
+    }
+  }
+}
+.Ed
+.Pp
+When writing literal text, all occurrences of
+.Sq } ,
+.Sq @ ,
+and
+.Sq \e
+must be backslash escaped as they have special meaning.
+.Ss Embedded nodes
+If you want to embed a node within literal text, you can make use of an embedded
+node.
+Embedded nodes are exactly the same as regular nodes, but they are prefixed with
+the at
+.Pq Sq @
+symbol.
+For example if you want to emphasize some text in a paragraph, you could do the
+following:
+.Bd -literal -offset indent
+p {-
+  This is some text, but @em .my-class {-some} of it is emphatic!
+}
+.Ed
+.Ss Whitespace control
+The typical behavior of
+.Nm
+is to compact whitespace.
+Here you can see a before\-and\-after of transpilation:
+.Bd -literal -offset indent
+Before
+
+foo {
+  bar{- Hello World }
+  baz{-Hello World}
+}
+.Ed
+.Bd -literal -offset indent
+After
+
+<foo><bar>Hello World</bar><baz>Hello World</baz></foo>
+.Ed
+.Pp
+The one exception to this use is when using embedded nodes.
+If your literal text contains an embedded node, then whitespace around the node
+is preserved:
+.Bd -literal -offset indent
+Before
+
+foo {-
+  Hello @bar{-there} world!
+}
+.Ed
+.Bd -literal -offset indent
+After
+
+<foo>Hello <bar>there</bar> world!</foo>
+.Ed
+.Pp
+Therefore if you would like to remove the whitespace, you need to manually
+compact your document:
+.Bd -literal -offset indent
+Before
+
+foo {-
+  Hello@bar{-there}world!
+}
+.Ed
+.Bd -literal -offset indent
+After
+
+<foo>Hello<bar>there</bar>world!</foo>
+.Ed
 .Sh SEE ALSO
 .Xr gsp 1
+.Pp
+.Lk https://www.w3.org/TR/xml "Extensible Markup Language (XML) Reference"
 .Sh AUTHORS
 .An Thomas Voss Aq Mt mail@thomasvoss.com
