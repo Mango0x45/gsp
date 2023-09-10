@@ -37,7 +37,7 @@ func process(filename string) {
 		die(err)
 	}
 
-	formatter.PrintHtml(ast)
+	formatter.PrintAst(ast)
 	fmt.Print("\n")
 }
 

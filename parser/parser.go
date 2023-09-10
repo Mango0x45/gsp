@@ -16,8 +16,9 @@ const (
 	Normal
 	Tagless
 	Text
-	XmlDocType
 )
+
+var Xml = false
 
 type Attr struct {
 	Key   string
@@ -62,10 +63,11 @@ func (reader *reader) parseDocType() (AstNode, error, bool) {
 	}
 
 	switch r {
+	case '?':
+		Xml = true
+		fallthrough
 	case '!':
 		doctype.Type = DocType
-	case '?':
-		doctype.Type = XmlDocType
 	default:
 		return AstNode{}, reader.unreadRune(), false
 	}
@@ -262,9 +264,7 @@ loop:
 		switch r {
 		case '{':
 			break loop
-		case '.':
-			fallthrough
-		case '#':
+		case '.', '#':
 			sym := r
 
 			// Skip ‘sym’

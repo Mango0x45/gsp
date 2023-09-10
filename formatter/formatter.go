@@ -2,113 +2,122 @@ package formatter
 
 import (
 	"fmt"
+	"slices"
 	"unicode"
 
 	"git.thomasvoss.com/gsp/parser"
 )
 
-var xml = false
+var (
+	attrValueEscapes = map[rune]string{
+		'"': "&quot;",
+		'&': "&amp;",
+		'<': "&lt;",
+	}
+	stringEscapes = map[rune]string {
+		'"': "&quot;",
+		'&': "&amp;",
+		'<': "&lt;",
+		'>': "&gt;",
+		'\'': "&apos;",
+	}
+)
 
-var stringEscapes = map[rune]string{
-	'"': "&quot;",
-	'&': "&amp;",
-	'<': "&lt;",
+func PrintAst(ast parser.AstNode) {
+	switch ast.Type {
+	case parser.Text:
+		printText(ast.Text)
+	case parser.DocType:
+		printDocType(ast)
+	case parser.Normal:
+		fmt.Printf("<%s", ast.Text)
+		printAttrs(ast.Attrs)
+
+		if len(ast.Children) == 0 {
+			if parser.Xml {
+				fmt.Print("/>")
+			} else {
+				fmt.Print(">")
+			}
+		} else {
+			fmt.Print(">")
+			printChildren(ast.Children)
+			fmt.Printf("</%s>", ast.Text)
+		}
+	case parser.Tagless:
+		printChildren(ast.Children)
+	}
 }
 
-func PrintHtml(ast parser.AstNode) {
-	if ast.Type == parser.Text {
-		fmt.Print(ast.Text)
-		return
-	}
+func printAttrs(attrs []parser.Attr) {
+	classes := attrs
+	classes = slices.DeleteFunc(classes, func (a parser.Attr) bool {
+		return a.Key != "class"
+	})
+	attrs = slices.DeleteFunc(attrs, func (a parser.Attr) bool {
+		return a.Key == "class"
+	})
 
-	if ast.Type == parser.DocType || ast.Type == parser.XmlDocType {
-		if ast.Type == parser.DocType {
-			fmt.Print("<!DOCTYPE")
-		} else {
-			xml = true
-			fmt.Print("<?xml")
-		}
-
-		for _, a := range ast.Attrs {
-			printAttr(a)
-		}
-
-		if ast.Type == parser.XmlDocType {
-			fmt.Print("?")
-		}
-		fmt.Print(">")
-	}
-
-	if ast.Type == parser.Normal {
-		fmt.Printf("<%s", ast.Text)
-
-		// Classes are grouped together with ‘class="…"’, so we need
-		// special handling.
-		classes := []string{}
-		notClasses := []parser.Attr{}
-
-		for _, a := range ast.Attrs {
-			if a.Key == "class" {
-				classes = append(classes, a.Value)
+	if len(classes) > 0 {
+		fmt.Print(" class=\"")
+		for i, a := range classes {
+			fmt.Print(a.Value)
+			if i != len(classes) - 1 {
+				fmt.Print(" ")
 			} else {
-				notClasses = append(notClasses, a)
+				fmt.Print("\"")
 			}
 		}
+	}
 
-		if len(classes) > 0 {
-			fmt.Printf(" class=\"%s", classes[0])
-			for _, c := range classes[1:] {
-				fmt.Printf(" %s", c)
+	for _, a := range attrs {
+		fmt.Printf(" %s", a.Key)
+		if a.Value != "" {
+			fmt.Print("=\"")
+			for _, r := range a.Value {
+				if v, ok := attrValueEscapes[r]; ok {
+					fmt.Print(v)
+				} else {
+					fmt.Printf("%c", r)
+				}
 			}
 			fmt.Print("\"")
 		}
-
-		for _, a := range notClasses {
-			printAttr(a)
-		}
-
-		if xml && len(ast.Children) == 0 {
-			fmt.Print("/>")
-		} else {
-			fmt.Print(">")
-		}
-	}
-
-	if len(ast.Children) == 0 {
-		return
-	}
-
-	for i, n := range ast.Children {
-		if n.Type == parser.Text {
-			if i == 0 {
-				n.Text = trimLeftSpaces(n.Text)
-			}
-
-			if i == len(ast.Children)-1 {
-				n.Text = trimRightSpaces(n.Text)
-			}
-		}
-
-		PrintHtml(n)
-	}
-
-	if ast.Type == parser.Normal {
-		fmt.Printf("</%s>", ast.Text)
 	}
 }
 
-func printAttr(a parser.Attr) {
-	fmt.Printf(" %s", a.Key)
-	if a.Value != "" {
-		fmt.Print("=\"")
-		for _, r := range a.Value {
-			if v, ok := stringEscapes[r]; ok {
-				fmt.Print(v)
-			} else {
-				fmt.Printf("%c", r)
-			}
+func printDocType(node parser.AstNode) {
+	if parser.Xml {
+		fmt.Print("<?xml")
+		printAttrs(node.Attrs)
+		fmt.Print("?>")
+	} else {
+		fmt.Print("<!DOCTYPE")
+		printAttrs(node.Attrs)
+		fmt.Print(">")
+	}
+}
+
+func printText(s string) {
+	for _, r := range s {
+		if v, ok := stringEscapes[r]; ok {
+			fmt.Print(v)
+		} else {
+			fmt.Printf("%c", r)
 		}
-		fmt.Print("\"")
+	}
+}
+
+func printChildren(nodes []parser.AstNode) {
+	for i, n := range nodes {
+		if i == 0 && n.Type == parser.Text {
+			n.Text = trimLeftSpaces(n.Text)
+		}
+		if i == len(nodes) - 1 && n.Type == parser.Text {
+			n.Text = trimRightSpaces(n.Text)
+		}
+
+		PrintAst(n)
 	}
 }
 
