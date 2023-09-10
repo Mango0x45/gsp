@@ -6,6 +6,7 @@
 .Nd better syntax for HTML and XML
 .Sh SYNOPSIS
 .Nm
+.Op Fl x
 .Op Ar
 .Sh DESCRIPTION
 .Nm
@@ -23,9 +24,17 @@ form of
 .Ql <tag>
 as opposed to XML where they take the form of
 .Ql <tag/> .
-If the document begins with an XML document type, then
+If the document begins with an XML document type or the
+.Fl x
+flag is specified, then
 .Nm
 will transpile to XML.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl x
+Transpile to XML instead of HTML.
+.El
 .Sh EXIT STATUS
 .Ex -std gsp
 .Sh EXAMPLES

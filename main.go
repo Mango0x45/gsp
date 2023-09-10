@@ -4,16 +4,26 @@ import (
 	"fmt"
 	"os"
 
+	"git.thomasvoss.com/getgopt"
 	"git.thomasvoss.com/gsp/formatter"
 	"git.thomasvoss.com/gsp/parser"
 )
 
 func main() {
-	if len(os.Args) == 1 {
+	for opt := byte(0); getgopt.Getopt(len(os.Args), os.Args, "x", &opt); {
+		switch opt {
+		case 'x':
+			parser.Xml = true
+		}
+	}
+
+	os.Args = os.Args[getgopt.Optind:]
+
+	if len(os.Args) == 0 {
 		process("-")
 	}
 
-	for _, arg := range os.Args[1:] {
+	for _, arg := range os.Args {
 		process(arg)
 	}
 }
