@@ -7,11 +7,6 @@ far too bloated, visually polluting your documents.
 support for such things, just use a programming- or macro language such as
 Python or M4.
 
-`GSP` also supports transpilation into XML.  This is exactly the same as
-transpilation to HTML except tags with no children take the form of `<tag/>`
-instead of `<tag>`.  To enable XML transpilation, add an XML document type at
-the top of your document.
-
 ## Why Not Use Pug or [INSERT LANGUAGE HERE]
 
 Simply put, they are all trash.  Pug has decent syntax but requires you use
@@ -23,8 +18,6 @@ to write JavaScript/Ruby/etc. scripts, which just isn’t good enough.
 ## Syntax Example
 
 ```gsp
-!html{}
-
 html lang="en" {
   head {
     meta charset="UTF-8"

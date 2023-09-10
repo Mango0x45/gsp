@@ -27,20 +27,12 @@ func PrintAst(ast parser.AstNode) {
 	switch ast.Type {
 	case parser.Text:
 		printText(ast.Text)
-	case parser.DocType:
-		printDocType(ast)
 	case parser.Normal:
 		fmt.Printf("<%s", ast.Text)
 		printAttrs(ast.Attrs)
+		fmt.Print(">")
 
-		if len(ast.Children) == 0 {
-			if parser.Xml {
-				fmt.Print("/>")
-			} else {
-				fmt.Print(">")
-			}
-		} else {
-			fmt.Print(">")
+		if len(ast.Children) > 0 {
 			printChildren(ast.Children)
 			fmt.Printf("</%s>", ast.Text)
 		}
@@ -83,18 +75,6 @@ func printAttrs(attrs []parser.Attr) {
 			}
 			fmt.Print("\"")
 		}
-	}
-}
-
-func printDocType(node parser.AstNode) {
-	if parser.Xml {
-		fmt.Print("<?xml")
-		printAttrs(node.Attrs)
-		fmt.Print("?>")
-	} else {
-		fmt.Print("<!DOCTYPE")
-		printAttrs(node.Attrs)
-		fmt.Print(">")
 	}
 }
 

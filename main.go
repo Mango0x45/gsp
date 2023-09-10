@@ -9,22 +9,27 @@ import (
 	"git.thomasvoss.com/gsp/parser"
 )
 
+var dflag bool
+
 func main() {
-	for opt := byte(0); getgopt.Getopt(len(os.Args), os.Args, "x", &opt); {
+	for opt := byte(0); getgopt.Getopt(len(os.Args), os.Args, "d", &opt); {
 		switch opt {
-		case 'x':
-			parser.Xml = true
+		case 'd':
+			dflag = true
+		default:
+			fmt.Fprintf(os.Stderr, "Usage: %s [-d] [file ...]\n", os.Args[0])
+			os.Exit(1)
 		}
 	}
 
-	os.Args = os.Args[getgopt.Optind:]
+	args := os.Args[getgopt.Optind:]
 
-	if len(os.Args) == 0 {
+	if len(args) == 0 {
 		process("-")
 	}
 
-	for _, arg := range os.Args {
-		process(arg)
+	for _, a := range args {
+		process(a)
 	}
 }
 
@@ -47,6 +52,9 @@ func process(filename string) {
 		die(err)
 	}
 
+	if !dflag {
+		fmt.Print("<!DOCTYPE html>")
+	}
 	formatter.PrintAst(ast)
 	fmt.Print("\n")
 }

@@ -7,20 +7,18 @@
 .Sh DESCRIPTION
 The
 .Nm
-language is an alternative language to HTML and XML which can be transpiled into
-either by making use of the
+language is an alternative language to HTML which can be transpiled by making
+use of the
 .Xr gsp 1
 transpiler.
 The
 .Nm
-language allows you to structure data in the same manner as XML while offering
-an easier\-to\-read and less verbose syntax, and also some nice shortcuts for
-working with HTML.  An example
+language allows you to structure data in the same manner as HTML while offering
+an easier\-to\-read and less verbose syntax, and also some nice shortcuts.
+An example
 .Nm
 document might look as follows:
 .Bd -literal -offset indent
-!html{}
-
 html lang="en" {
   head {
     meta charset="UTF-8"
@@ -85,7 +83,7 @@ footer foo bar { div{} div{} }
 .Ed
 .Ss Node names
 Node names follow the exact same naming rules as names do in XML.
-See the XML references in
+See the XML reference in
 .Sx SEE ALSO
 for more details.
 .Ss Attributes
@@ -119,9 +117,8 @@ Like with node names, the details about which characters are allowed within an
 attribute name are detailed in the XML reference found in the
 .Sx SEE ALSO
 section of this manual.
-.Ss HTML IDs and -classes
-When transpiling to HTML, you will be wanting to use IDs and classes all of the
-time.
+.Ss IDs and classes
+When transpiling, you will be wanting to use IDs and classes all of the time.
 Due to the frequency of use of these parts of HTML,
 .Nm
 offers a shorthand syntax for specifying them.
@@ -144,38 +141,13 @@ div id="foo" class="bar baz" {
 }
 .Ed
 .Ss Document types
-Both HTML and XML make use of document types at the start of the document.  In
-HTML the document type is of the form
-.Ql <!DOCTYPE attributes>
-while in XML the document type is of the form
-.Ql <?xml attributes?> .
-You can specify a document type in
 .Nm
-by using the special node name
-.Sq \&!
-or
-.Sq \&?
-for an HTML- or XML document type respectively.
-Unlike with the usual node name, you do not need to include whitespace between
-the special node name and the attributes.
-The following example includes a document type that will transpile into
-.Ql <!DOCTYPE html> :
-.Bd -literal -offset indent
-!html{}
-html {
-  head {...}
-  body {...}
-}
-.Ed
-.Pp
-Here is an example of using an XML document type:
-.Bd -literal -offset indent
-?version="1.1" encoding="UTF-8"{}
-document {...}
-.Ed
-.Pp
-You may only specify one document type, and it must be the first node of the
-document.
+does not support document types.
+The HTML5 document type is automatically generated when transpiling to HTML.
+If you want to use a different document type, you’ll have to do that yourself.
+There is an example of this in the
+.Xr gsp 1
+manual.
 .Ss Literal text
 If you want to include literal text within a node you can make use of the
 special node name
@@ -184,8 +156,6 @@ Unlike with the usual node name, you do not need to include whitespace between
 the special node name and the attributes.
 The following example shows how you can set a page title and paragraph text:
 .Bd -literal -offset indent
-!html{}
-
 html {
   head {
     title {-My Amazing Website}

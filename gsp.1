@@ -3,37 +3,26 @@
 .Os
 .Sh NAME
 .Nm gsp
-.Nd better syntax for HTML and XML
+.Nd better syntax for HTML
 .Sh SYNOPSIS
 .Nm
-.Op Fl x
+.Op Fl d
 .Op Ar
 .Sh DESCRIPTION
 .Nm
 is a utility to transpile
 .Xr gsp 5
-formatted plain\-text files into valid HTML and XML.
-Files provided as command\-line arguments will be transpiled with the result
+formatted plain-text files into valid HTML.
+Files provided as command-line arguments will be transpiled with the result
 being written to the standard output.
 If no arguments or the special filename
 .Pa -
 is provided, then input will be read from the standard input.
 .Pp
-By default files are transpiled to HTML, where tags with no children take the
-form of
-.Ql <tag>
-as opposed to XML where they take the form of
-.Ql <tag/> .
-If the document begins with an XML document type or the
-.Fl x
-flag is specified, then
-.Nm
-will transpile to XML.
-.Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl x
-Transpile to XML instead of HTML.
+.It Fl d
+Do not automatically generate a document type at the beginning of the document.
 .El
 .Sh EXIT STATUS
 .Ex -std gsp
@@ -51,6 +40,10 @@ Expand
 macros before transpiling:
 .Pp
 .Dl $ m4 foo.gsp | gsp
+.Pp
+Use your own document type instead of the HTML5 one:
+.Pp
+.Dl $ printf \(aq%s%s\(aq \(dq$doctype\(dq \(dq$(gsp -d foo.gsp)\(dq
 .Sh SEE ALSO
 .Xr m4 1 ,
 .Xr sed 1 ,
