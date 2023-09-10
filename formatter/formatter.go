@@ -111,8 +111,8 @@ func trimLeftSpaces(s string) string {
 }
 
 func trimRightSpaces(s string) string {
-	i := len(s) - 1
 	rs := []rune(s)
+	i := len(rs) - 1
 	for i >= 0 && unicode.IsSpace(rs[i]) {
 		i--
 	}
