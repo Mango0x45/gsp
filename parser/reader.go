@@ -23,9 +23,8 @@ type reader struct {
 	pos position
 }
 
-func (reader *reader) peekRune() (rune, error) {
+func (reader *reader) peekRune() (r rune, err error) {
 	bytes := make([]byte, 0, 4)
-	var err error
 
 	// Peeking the next rune is annoying.  We want to get the next rune
 	// which could be the next 1–4 bytes.  Normally we can just call
@@ -35,10 +34,10 @@ func (reader *reader) peekRune() (rune, error) {
 		if bytes, err = reader.r.Peek(i); err == io.EOF {
 			continue
 		} else if err != nil {
-			return 0, err
+			return
 		} else {
-			rune, _ := utf8.DecodeRune(bytes)
-			return rune, nil
+			r, _ = utf8.DecodeRune(bytes)
+			return
 		}
 	}
 
@@ -57,15 +56,15 @@ func (reader *reader) unreadRune() error {
 }
 
 func (reader *reader) readRune() (rune, error) {
-	rune, _, err := reader.r.ReadRune()
-	if rune == '\n' {
+	r, _, err := reader.r.ReadRune()
+	if r == '\n' {
 		reader.pos.prevCol = reader.pos.col
 		reader.pos.col = 0
 		reader.pos.row++
 	} else {
 		reader.pos.col++
 	}
-	return rune, err
+	return r, err
 }
 
 func (reader *reader) readNonSpaceRune() (rune, error) {
@@ -73,21 +72,17 @@ func (reader *reader) readNonSpaceRune() (rune, error) {
 		return 0, err
 	}
 
-	if r, err := reader.readRune(); err != nil {
-		return 0, err
-	} else {
-		return r, nil
-	}
+	return reader.readRune()
 }
 
 func (reader *reader) skipSpaces() error {
 	for {
-		if rune, err := reader.readRune(); err != nil {
+		if r, err := reader.readRune(); err != nil {
 			if err == io.EOF {
 				return nil
 			}
 			return err
-		} else if !unicode.IsSpace(rune) {
+		} else if !unicode.IsSpace(r) {
 			return reader.unreadRune()
 		}
 	}
