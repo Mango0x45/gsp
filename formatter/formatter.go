@@ -14,11 +14,11 @@ var (
 		'&': "&amp;",
 		'<': "&lt;",
 	}
-	stringEscapes = map[rune]string {
-		'"': "&quot;",
-		'&': "&amp;",
-		'<': "&lt;",
-		'>': "&gt;",
+	stringEscapes = map[rune]string{
+		'"':  "&quot;",
+		'&':  "&amp;",
+		'<':  "&lt;",
+		'>':  "&gt;",
 		'\'': "&apos;",
 	}
 )
@@ -49,10 +49,10 @@ func PrintAst(ast parser.AstNode) {
 
 func printAttrs(attrs []parser.Attr) {
 	classes := attrs
-	classes = slices.DeleteFunc(classes, func (a parser.Attr) bool {
+	classes = slices.DeleteFunc(classes, func(a parser.Attr) bool {
 		return a.Key != "class"
 	})
-	attrs = slices.DeleteFunc(attrs, func (a parser.Attr) bool {
+	attrs = slices.DeleteFunc(attrs, func(a parser.Attr) bool {
 		return a.Key == "class"
 	})
 
@@ -60,7 +60,7 @@ func printAttrs(attrs []parser.Attr) {
 		fmt.Print(" class=\"")
 		for i, a := range classes {
 			fmt.Print(a.Value)
-			if i != len(classes) - 1 {
+			if i != len(classes)-1 {
 				fmt.Print(" ")
 			} else {
 				fmt.Print("\"")
@@ -105,7 +105,7 @@ func printChildrenTrim(nodes []parser.AstNode) {
 		if i == 0 && n.Type == parser.Text {
 			n.Text = trimLeftSpaces(n.Text)
 		}
-		if i == len(nodes) - 1 && n.Type == parser.Text {
+		if i == len(nodes)-1 && n.Type == parser.Text {
 			n.Text = trimRightSpaces(n.Text)
 		}
 
