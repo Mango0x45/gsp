@@ -195,55 +195,6 @@ p {-
 }
 .Ed
 .Ss Whitespace control
-The typical behavior of
-.Nm
-is to compact whitespace.
-Here you can see a before-and-after of transpilation:
-.Bd -literal -offset indent
-Before
-
-foo {
-  bar{- Hello World }
-  baz{-Hello World}
-}
-.Ed
-.Bd -literal -offset indent
-After
-
-<foo><bar>Hello World</bar><baz>Hello World</baz></foo>
-.Ed
-.Pp
-One exception to this use is when using embedded nodes.
-If your literal text contains an embedded node, then whitespace around the node
-is preserved:
-.Bd -literal -offset indent
-Before
-
-foo {-
-  Hello @bar{-there} world!
-}
-.Ed
-.Bd -literal -offset indent
-After
-
-<foo>Hello <bar>there</bar> world!</foo>
-.Ed
-.Pp
-Therefore if you would like to remove the whitespace when working with literal
-text, you need to manually compact your document:
-.Bd -literal -offset indent
-Before
-
-foo {-
-  Hello@bar{-there}world!
-}
-.Ed
-.Bd -literal -offset indent
-After
-
-<foo>Hello<bar>there</bar>world!</foo>
-.Ed
-.Pp
 Sometimes it is also useful to have a newline between nodes, especially when
 working with
 .Sq code
@@ -268,6 +219,26 @@ After
 <pre><code>foo</code>
 <code>bar</code>
 <code>baz</code></pre>
+.Ed
+.Pp
+Additionally, sometimes when using literal text with the
+.Sq -
+special node name, it can be nice to have a way to trim whitespace around the
+text without having to minify your markup.
+To achieve this, you can use the special equals
+.Pq Sq =
+node name:
+.Bd -literal -offset indent
+Before
+
+>foo {- Hello World  }
+ bar {= Hello World  }
+.Ed
+.Bd -literal -offset indent
+After
+
+<foo> Hello World  </foo>
+<bar>Hello World</bar>
 .Ed
 .Sh SEE ALSO
 .Xr gsp 1

@@ -42,6 +42,8 @@ func PrintAst(ast parser.AstNode) {
 		}
 	case parser.Tagless:
 		printChildren(ast.Children)
+	case parser.TaglessTrim:
+		printChildrenTrim(ast.Children)
 	}
 }
 
@@ -93,6 +95,12 @@ func printText(s string) {
 }
 
 func printChildren(nodes []parser.AstNode) {
+	for _, n := range nodes {
+		PrintAst(n)
+	}
+}
+
+func printChildrenTrim(nodes []parser.AstNode) {
 	for i, n := range nodes {
 		if i == 0 && n.Type == parser.Text {
 			n.Text = trimLeftSpaces(n.Text)

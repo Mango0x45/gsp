@@ -14,6 +14,7 @@ type nodeType uint
 const (
 	Normal nodeType = iota
 	Tagless
+	TaglessTrim
 	Text
 )
 
@@ -66,8 +67,8 @@ func (reader *reader) parseNode() (node AstNode, err error) {
 	}
 
 	switch r {
-	case '-':
-		return reader.parseText()
+	case '-', '=':
+		return reader.parseText(r == '=')
 	case '>':
 		node.Newline = true
 		if _, err = reader.readRune(); err != nil {
@@ -153,13 +154,18 @@ func (reader *reader) parseNodeName() (string, error) {
 	return sb.String(), nil
 }
 
-func (reader *reader) parseText() (AstNode, error) {
+func (reader *reader) parseText(trim bool) (AstNode, error) {
 	if _, err := reader.readRune(); err != nil {
 		return AstNode{}, err
 	}
 
 	sb := strings.Builder{}
-	node := AstNode{Type: Tagless}
+	node := AstNode{}
+	if trim {
+		node.Type = TaglessTrim
+	} else {
+		node.Type = Tagless
+	}
 
 loop:
 	for {
