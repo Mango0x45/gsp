@@ -25,10 +25,10 @@ to write JavaScript/Ruby/etc. scripts, which just isn’t good enough.
 ```gsp
 html lang="en" {
   head {
-    meta charset="UTF-8"
-    meta name="viewport" content="width=device-width, initial-scale=1.0"
-    link href="/favicon.svg" rel="shortcut icon" type="image/svg"
-    link href="/style.svg" rel="stylesheet"
+    meta charset="UTF-8" {}
+    meta name="viewport" content="width=device-width, initial-scale=1.0" {}
+    link href="/favicon.svg" rel="shortcut icon" type="image/svg" {}
+    link href="/style.svg" rel="stylesheet" {}
     title {-My Website Title}
   }
   body {
