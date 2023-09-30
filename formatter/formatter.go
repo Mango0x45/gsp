@@ -48,13 +48,16 @@ func PrintAst(ast parser.AstNode) {
 }
 
 func printAttrs(attrs []parser.Attr) {
-	classes := attrs
+	classes := make([]parser.Attr, len(attrs), cap(attrs))
+	copy(classes, attrs)
 	classes = slices.DeleteFunc(classes, func(a parser.Attr) bool {
 		return a.Key != "class"
 	})
+
 	attrs = slices.DeleteFunc(attrs, func(a parser.Attr) bool {
 		return a.Key == "class"
 	})
+
 
 	if len(classes) > 0 {
 		fmt.Print(" class=\"")
