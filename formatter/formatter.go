@@ -53,11 +53,9 @@ func printAttrs(attrs []parser.Attr) {
 	classes = slices.DeleteFunc(classes, func(a parser.Attr) bool {
 		return a.Key != "class"
 	})
-
 	attrs = slices.DeleteFunc(attrs, func(a parser.Attr) bool {
 		return a.Key == "class"
 	})
-
 
 	if len(classes) > 0 {
 		fmt.Print(" class=\"")
