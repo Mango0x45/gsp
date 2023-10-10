@@ -2,7 +2,6 @@ package formatter
 
 import (
 	"fmt"
-	"slices"
 	"unicode"
 
 	"git.thomasvoss.com/gsp/parser"
@@ -48,14 +47,16 @@ func PrintAst(ast parser.AstNode) {
 }
 
 func printAttrs(attrs []parser.Attr) {
-	classes := make([]parser.Attr, len(attrs), cap(attrs))
-	copy(classes, attrs)
-	classes = slices.DeleteFunc(classes, func(a parser.Attr) bool {
-		return a.Key != "class"
-	})
-	attrs = slices.DeleteFunc(attrs, func(a parser.Attr) bool {
-		return a.Key == "class"
-	})
+	classes := make([]parser.Attr, 0, cap(attrs))
+	nClasses := make([]parser.Attr, 0, cap(attrs))
+
+	for _, a := range attrs {
+		if a.Key == "class" {
+			classes = append(classes, a)
+		} else {
+			nClasses = append(nClasses, a)
+		}
+	}
 
 	if len(classes) > 0 {
 		fmt.Print(" class=\"")
