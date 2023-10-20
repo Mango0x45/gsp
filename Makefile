@@ -23,4 +23,4 @@ install:
 	cp ${target}.5 ${DPREFIX}/share/man/man5
 
 test:
-	go test . ./parser ./formatter
+	go test ./...
