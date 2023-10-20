@@ -70,7 +70,7 @@ func printAttrs(attrs []parser.Attr) {
 		}
 	}
 
-	for _, a := range attrs {
+	for _, a := range nClasses {
 		fmt.Printf(" %s", a.Key)
 		if a.Value != "" {
 			fmt.Print("=\"")
