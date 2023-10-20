@@ -1,3 +1,5 @@
+.POSIX:
+
 PREFIX = /usr/local
 DPREFIX = ${DESTDIR}${PREFIX}
 
