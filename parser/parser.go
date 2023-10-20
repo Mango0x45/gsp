@@ -18,11 +18,15 @@ const (
 	Text
 )
 
+// Attr represents an HTML attribute.  It is a key/value pair.
 type Attr struct {
 	Key   string
 	Value string
 }
 
+// AstNode represents a GSP node.  Each node has a type, and depending on that
+// type it may have inner text, child nodes, or attributes.  Some nodes may also
+// have the newline flag.
 type AstNode struct {
 	Type     nodeType
 	Text     string
@@ -31,6 +35,7 @@ type AstNode struct {
 	Newline  bool
 }
 
+// ParseFile reads and parses a GSP-formatted text file and returns a GSP AST.
 func ParseFile(file *os.File) (AstNode, error) {
 	r := reader{r: bufio.NewReader(file)}
 	document := AstNode{Type: Tagless}
@@ -53,9 +58,10 @@ func ParseFile(file *os.File) (AstNode, error) {
 		} else {
 			document.Children = append(document.Children, node)
 		}
-	}
-}
+	} }
 
+// parseNode parses the next node in the GSP document, and may call itself
+// recursively on any child nodes.
 func (reader *reader) parseNode() (node AstNode, err error) {
 	if err = reader.skipSpaces(); err != nil {
 		return
@@ -121,6 +127,8 @@ loop:
 	return
 }
 
+// parseNodeName parses the next node name, validating it to ensure it is a
+// valid XML node name.
 func (reader *reader) parseNodeName() (string, error) {
 	var r rune
 	var err error
@@ -154,6 +162,9 @@ func (reader *reader) parseNodeName() (string, error) {
 	return sb.String(), nil
 }
 
+// parseText parses the text that can be found within an outer node.  It also
+// detects embedded nodes using ‘@’ syntax and calls ‘reader.parseNode()’ on
+// them.
 func (reader *reader) parseText(trim bool) (AstNode, error) {
 	if _, err := reader.readRune(); err != nil {
 		return AstNode{}, err
@@ -216,6 +227,8 @@ loop:
 	return node, nil
 }
 
+// parseAttrs parses the next nodes attributes.  It also parses shorthand
+// class- and ID syntax.
 func (reader *reader) parseAttrs() ([]Attr, error) {
 	attrs := make([]Attr, 0, 2)
 
@@ -284,6 +297,7 @@ loop:
 	return attrs, nil
 }
 
+// parseString parses the double quoted strings used as attribute values.
 func (reader *reader) parseString() (string, error) {
 	sb := strings.Builder{}
 
@@ -327,6 +341,8 @@ func (reader *reader) parseString() (string, error) {
 	}
 }
 
+// validNameStartChar returns whether or not the rune ‘r’ is a legal rune in the
+// first position an XML tag name.
 func validNameStartChar(r rune) bool {
 	return r == ':' || r == '_' ||
 		(r >= 'A' && r <= 'Z') ||
@@ -345,6 +361,8 @@ func validNameStartChar(r rune) bool {
 		(r >= 0x10000 && r <= 0xEFFFF)
 }
 
+// validNameChar returns whether or not the rune ‘r’ is a legal rune in an XML
+// tag name.
 func validNameChar(r rune) bool {
 	return validNameStartChar(r) ||
 		r == '-' || r == '.' || r == '·' ||
