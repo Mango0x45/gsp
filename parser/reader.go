@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"unicode"
@@ -23,25 +24,19 @@ type reader struct {
 	pos position
 }
 
-func (reader *reader) peekRune() (r rune, err error) {
-	bytes := make([]byte, 0, 4)
+// peakRune returns the next rune in the buffer without actually moving the
+// parser forwards.
+func (reader *reader) peekRune() (rune, error) {
+	bytes, _ := reader.r.Peek(4)
+	r, size := utf8.DecodeRune(bytes)
 
-	// Peeking the next rune is annoying.  We want to get the next rune
-	// which could be the next 1–4 bytes.  Normally we can just call
-	// reader.r.Peek(4) but that doesn’t work here as the last rune in a
-	// file could be a 1–3 byte rune, so we would fail with an EOF error.
-	for i := 4; i > 0; i-- {
-		if bytes, err = reader.r.Peek(i); err == io.EOF {
-			continue
-		} else if err != nil {
-			return
-		} else {
-			r, _ = utf8.DecodeRune(bytes)
-			return
-		}
+	switch {
+	case r == utf8.RuneError && size == 0:
+		return 0, io.EOF
+	case r == utf8.RuneError && size == 1:
+		return 0, errors.New("Tried to decode malformed UTF-8")
 	}
-
-	return 0, io.EOF
+	return r, nil
 }
 
 func (reader *reader) unreadRune() error {
