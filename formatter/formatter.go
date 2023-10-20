@@ -61,7 +61,7 @@ func printAttrs(attrs []parser.Attr) {
 	if len(classes) > 0 {
 		fmt.Print(" class=\"")
 		for i, a := range classes {
-			fmt.Print(a.Value)
+			printAttrVal(a.Value)
 			if i != len(classes)-1 {
 				fmt.Print(" ")
 			} else {
@@ -74,14 +74,18 @@ func printAttrs(attrs []parser.Attr) {
 		fmt.Printf(" %s", a.Key)
 		if a.Value != "" {
 			fmt.Print("=\"")
-			for _, r := range a.Value {
-				if v, ok := attrValueEscapes[r]; ok {
-					fmt.Print(v)
-				} else {
-					fmt.Printf("%c", r)
-				}
-			}
+			printAttrVal(a.Value)
 			fmt.Print("\"")
+		}
+	}
+}
+
+func printAttrVal(s string) {
+	for _, r := range s {
+		if v, ok := attrValueEscapes[r]; ok {
+			fmt.Print(v)
+		} else {
+			fmt.Printf("%c", r)
 		}
 	}
 }
