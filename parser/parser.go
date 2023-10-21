@@ -58,7 +58,8 @@ func ParseFile(file *os.File) (AstNode, error) {
 		} else {
 			document.Children = append(document.Children, node)
 		}
-	} }
+	}
+}
 
 // parseNode parses the next node in the GSP document, and may call itself
 // recursively on any child nodes.

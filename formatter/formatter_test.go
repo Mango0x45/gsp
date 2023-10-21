@@ -202,8 +202,8 @@ func TestPrintChildrenTrimMixed(t *testing.T) {
 	}
 	printChildrenTrim([]parser.AstNode{
 		{
-			Type: parser.Normal,
-			Text: "em",
+			Type:     parser.Normal,
+			Text:     "em",
 			Children: children,
 		},
 		{
