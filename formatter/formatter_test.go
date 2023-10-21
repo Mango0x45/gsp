@@ -75,7 +75,7 @@ func TestPrintAst(t *testing.T) {
 	}
 }
 
-func TestPrintAttrs_nClasses(t *testing.T) {
+func TestPrintAttrsNoClasses(t *testing.T) {
 	redirectStdout()
 	printAttrs([]parser.Attr{
 		{
@@ -97,7 +97,7 @@ func TestPrintAttrs_nClasses(t *testing.T) {
 	}
 }
 
-func TestPrintAttrs_classes(t *testing.T) {
+func TestPrintAttrsClasses(t *testing.T) {
 	redirectStdout()
 	printAttrs([]parser.Attr{
 		{
@@ -120,7 +120,7 @@ func TestPrintAttrs_classes(t *testing.T) {
 	}
 }
 
-func TestPrintAttrs_mixedAttrs(t *testing.T) {
+func TestPrintAttrsMixedAttrs(t *testing.T) {
 	redirectStdout()
 	printAttrs([]parser.Attr{
 		{
