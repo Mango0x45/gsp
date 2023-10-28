@@ -39,10 +39,10 @@ func TestPrintAst(t *testing.T) {
 	    >title {-
 	      My Website
 	    }
-	    meta x="y"{}
+	    meta .→{} x="y"{}
 	  }
 	  >body {
-	    >div #some-id{}
+	    >div #some-id {}
 	    div key="val" .class-1 .class-2 {
 	      p {- This is some @em{-emphatic} text	  }
 	    }
@@ -53,7 +53,7 @@ func TestPrintAst(t *testing.T) {
 	result := `<html lang="en"><head attr><title>
 	      My Website
 	    </title>
-<meta x="y"></head>
+<meta class="→{}" x="y"></head>
 <body><div id="some-id">
 <div class="class-1 class-2" key="val"><p> This is some <em>emphatic</em> text	  </p></div><tags key="Some long value"></body>
 </html>`

@@ -255,7 +255,7 @@ loop:
 				return nil, err
 			}
 
-			if s, err := reader.parseNodeName(); err != nil {
+			if s, err := reader.parseShorthand(); err != nil {
 				return nil, err
 			} else {
 				attr.Value = s
@@ -296,6 +296,33 @@ loop:
 	}
 
 	return attrs, nil
+}
+
+// parseShorthand parses an ID- or class shorthand value.
+func (reader *reader) parseShorthand() (string, error) {
+	sb := strings.Builder{}
+
+	for {
+		r, err := reader.readRune()
+		if err != nil {
+			return "", err
+		}
+
+		if unicode.IsSpace(r) {
+			break
+		}
+		sb.WriteRune(r)
+	}
+
+	s := sb.String()
+	if len(s) == 0 {
+		return "", invalidSyntax{
+			pos:      reader.pos,
+			expected: "id- or class name",
+			found:    "no value",
+		}
+	}
+	return s, nil
 }
 
 // parseString parses the double quoted strings used as attribute values.

@@ -1,4 +1,4 @@
-.Dd $Mdocdate: October 2 2023 $
+.Dd $Mdocdate: October 28 2023 $
 .Dt GSP 5
 .Os
 .Sh NAME
@@ -152,6 +152,21 @@ div #foo .bar .baz {
 div id="foo" class="bar baz" {
   div class="bar" {}
 }
+.Ed
+.Pp
+It is important to note that HTML5 allows for an ID- or class name to contain
+just about anything, therefor
+.Ql .→Ħ{}
+is a valid ID shorthand.
+This is important because it means that the following doesn’t actually create a
+node with no children:
+.Bd -literal -offset indent
+div .foo{}
+.Ed
+.Pp
+You must instead include a space:
+.Bd -literal -offset indent
+div .foo {}
 .Ed
 .Ss Document types
 .Nm
