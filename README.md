@@ -7,10 +7,43 @@ far too bloated, visually polluting your documents.
 support for such things, just use a programming- or macro language such as
 Python or M4.
 
+## Installation
+
+You need to ensure you have both the Go compiler and the `make` command
+available.  If you don’t have Go, you can get it [here][1].  If you’re on a
+UNIX-like system such as Linux or MacOS then you should already have `make`.  If
+you’re on Windows you should be using WSL anyways, and you can figure out how to
+get Make.  You also need Git.
+
+First, clone the repository and move into it:
+
+```
+$ git clone https://git.sr.ht/~mango/gsp
+$ cd gsp
+```
+
+Then you can compile the transpiler with either of the two commands:
+
+```
+$ make
+$ go build
+```
+
+Finally, you can install the transpiler and documentation with the following:
+
+```
+$ sudo make install
+```
+
 ## Documentation
 
-Documentation for the transpiler can be found in the `gsp(1)` manual.
-Documentation for the language can be found in the `gsp(5)` manual.
+Documentation for the transpiler can be found in the `gsp(1)` manual and
+documentation for the language can be found in the `gsp(5)` manual:
+
+```
+$ man gsp    # transpiler documentation
+$ man 5 gsp  # language documentation
+```
 
 ## Why Not Use Pug or [INSERT LANGUAGE HERE]
 
@@ -56,3 +89,5 @@ html lang="en" {
 ## Why The Name GSP?
 
 I was originally inspired by Pug, but my dog is a GSP, not a pug.
+
+[1]: https://go.dev/dl/
