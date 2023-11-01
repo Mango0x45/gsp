@@ -1,4 +1,4 @@
-.Dd $Mdocdate: October 28 2023 $
+.Dd $Mdocdate: November 1 2023 $
 .Dt GSP 5
 .Os
 .Sh NAME
@@ -219,51 +219,77 @@ p {-
 }
 .Ed
 .Ss Whitespace control
-Sometimes it is also useful to have a newline between nodes, especially when
-working with
-.Sq code
-tags nested within a
-.Sq pre
-tag.
-To specify that you want a newline to be placed after a node, you can prefix the
-node name with a greater-than symbol
-.Pq Sq > :
+By default GSP transpiled to HTML will be automatically minified with the
+exception of literal text whose whitespace is untouched.
+Sometimes though, we want to have proper control over whitespace.
+The first trick to manual whitespace control is to make use of the special node
+name
+.Sq = .
+It acts identially to the special
+.Sq -
+node, except it removes all leading- and trailing whitespace:
+.Bd -literal -offset indent
+Before
+
+p {=   Hello World
+
+}
+
+After
+
+<p>Hello World</p>
+.Ed
+.Pp
+This can be useful for trimming whitespace, but sometimes we want to preserve
+it.
+This is especially crucial with HTML
+.Ql <pre>
+tags for which whitespace is not squashed.
+We can get around this issue by making use of the fact that the special
+.Sq -
+node does not trim whitespace.
+The following is an example of how not to display two seperate lines in a
+.Ql <pre>
+tag:
 .Bd -literal -offset indent
 Before
 
 pre {
-  >code {-foo}
-  >code {-bar}
-  code  {-baz}
+	code{-Foo}
+	code{-Bar}
 }
-.Ed
-.Bd -literal -offset indent
+
 After
 
-<pre><code>foo</code>
-<code>bar</code>
-<code>baz</code></pre>
+<pre><code>Foo</code><code>Bar</code></pre>
 .Ed
 .Pp
-Additionally, sometimes when using literal text with the
-.Sq -
-special node name, it can be nice to have a way to trim whitespace around the
-text without having to minify your markup.
-To achieve this, you can use the special equals
-.Pq Sq =
-node name:
+Instead, you can do the following:
 .Bd -literal -offset indent
 Before
 
->foo {- Hello World  }
- bar {= Hello World  }
-.Ed
-.Bd -literal -offset indent
+pre {-
+  @code{-Foo}
+  @code{-Bar}
+}
+
 After
 
-<foo> Hello World  </foo>
-<bar>Hello World</bar>
+<pre>
+  <code>Foo</code>
+  <code>Bar</code>
+</pre>
 .Ed
+.Pp
+If you would like to have the whitespace between the opening- and closing
+.Ql pre
+tags and the inner
+.Ql code
+tags removed, you can use the
+.Sq =
+node instead of the
+.Sq -
+node.
 .Sh SEE ALSO
 .Xr gsp 1
 .Pp

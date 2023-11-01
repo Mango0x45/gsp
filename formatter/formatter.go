@@ -35,10 +35,6 @@ func PrintAst(ast parser.AstNode) {
 			printChildren(ast.Children)
 			fmt.Printf("</%s>", ast.Text)
 		}
-
-		if ast.Newline {
-			fmt.Print("\n")
-		}
 	case parser.Tagless:
 		printChildren(ast.Children)
 	case parser.TaglessTrim:

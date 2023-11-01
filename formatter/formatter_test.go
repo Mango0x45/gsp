@@ -35,14 +35,14 @@ func restoreAndCapture() string {
 func TestPrintAst(t *testing.T) {
 	s := `
 	html lang="en" {
-	  >head attr {
-	    >title {-
+	  head attr {
+	    title {-
 	      My Website
 	    }
 	    meta .→{} x="y"{}
 	  }
-	  >body {
-	    >div #some-id {}
+	  body {
+	    div #some-id {}
 	    div key="val" .class-1 .class-2 {
 	      p {- This is some @em{-emphatic} text	  }
 	    }
@@ -52,11 +52,7 @@ func TestPrintAst(t *testing.T) {
 	}`
 	result := `<html lang="en"><head attr><title>
 	      My Website
-	    </title>
-<meta class="→{}" x="y"></head>
-<body><div id="some-id">
-<div class="class-1 class-2" key="val"><p> This is some <em>emphatic</em> text	  </p></div><tags key="Some long value"></body>
-</html>`
+	    </title><meta class="→{}" x="y"></head><body><div id="some-id"><div class="class-1 class-2" key="val"><p> This is some <em>emphatic</em> text	  </p></div><tags key="Some long value"></body></html>`
 
 	// Write the source to a temp file
 	r := strings.NewReader(s)

@@ -32,7 +32,6 @@ type AstNode struct {
 	Text     string
 	Attrs    []Attr
 	Children []AstNode
-	Newline  bool
 }
 
 // ParseFile reads and parses a GSP-formatted text file and returns a GSP AST.
@@ -73,14 +72,8 @@ func (reader *reader) parseNode() (node AstNode, err error) {
 		return
 	}
 
-	switch r {
-	case '-', '=':
+	if r == '-' || r == '=' {
 		return reader.parseText(r == '=')
-	case '>':
-		node.Newline = true
-		if _, err = reader.readRune(); err != nil {
-			return
-		}
 	}
 
 	if node.Text, err = reader.parseNodeName(); err != nil {
