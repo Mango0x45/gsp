@@ -35,15 +35,15 @@ type reader struct {
 // parser forwards.
 func (reader *reader) peekRune() (rune, error) {
 	bytes, _ := reader.r.Peek(4)
-	r, size := utf8.DecodeRune(bytes)
 
-	switch {
+	switch r, size := utf8.DecodeRune(bytes); {
 	case r == utf8.RuneError && size == 0:
 		return 0, io.EOF
 	case r == utf8.RuneError && size == 1:
 		return 0, errors.New("Tried to decode malformed UTF-8")
+	default:
+		return r, nil
 	}
-	return r, nil
 }
 
 // unreadRune moves the parser one rune back, allowing for basic backtracking.
