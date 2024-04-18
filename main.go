@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"git.thomasvoss.com/getgopt"
+	"git.sr.ht/~mango/opts/v2"
 	"git.thomasvoss.com/gsp/formatter"
 	"git.thomasvoss.com/gsp/parser"
 )
@@ -12,23 +12,27 @@ import (
 var dflag bool
 
 func main() {
-	for opt := byte(0); getgopt.Getopt(len(os.Args), os.Args, "d", &opt); {
-		switch opt {
+	flags, rest, err := opts.GetLong(os.Args, []opts.LongOpt{
+		{Short: 'd', Long: "no-doctype", Arg: opts.None},
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
+		fmt.Fprintf(os.Stderr, "Usage: %s [-d] [file ...]\n", os.Args[0])
+		os.Exit(1)
+	}
+
+	for _, f := range flags {
+		switch f.Key {
 		case 'd':
 			dflag = true
-		default:
-			fmt.Fprintf(os.Stderr, "Usage: %s [-d] [file ...]\n", os.Args[0])
-			os.Exit(1)
 		}
 	}
 
-	args := os.Args[getgopt.Optind:]
-
-	if len(args) == 0 {
+	if len(rest) == 0 {
 		process("-")
 	}
 
-	for _, a := range args {
+	for _, a := range rest {
 		process(a)
 	}
 }
