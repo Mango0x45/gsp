@@ -27,6 +27,9 @@ func PrintAst(ast parser.AstNode) {
 	case parser.Text:
 		printText(ast.Text)
 	case parser.Normal:
+		if ast.Text == "/" {
+			return
+		}
 		fmt.Printf("<%s", ast.Text)
 		printAttrs(ast.Attrs)
 		fmt.Print(">")

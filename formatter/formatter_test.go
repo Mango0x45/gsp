@@ -252,3 +252,30 @@ func TestTrimRightSpaces(t *testing.T) {
 		t.Fatalf("trimRightSpaces() returned ‘%s’", sy)
 	}
 }
+
+func TestPrintAstWithComments(t *testing.T) {
+	s := `
+	html lang="en" {
+		body {
+			/ p {= Hello, Sailor!}
+			p {= Hello, World!}
+		}
+	}`
+	result := `<html lang="en"><body><p>Hello, World!</p></body></html>`
+
+	// Write the source to a temp file
+	r := strings.NewReader(s)
+	f, _ := os.CreateTemp("", "tmp*")
+	defer f.Close()
+	io.Copy(f, r)
+	f.Seek(0, 0)
+	ast, _ := parser.ParseFile(f)
+
+	redirectStdout()
+	PrintAst(ast)
+
+	out := restoreAndCapture()
+	if out != result {
+		t.Fatalf("PrintAst() printed unexpected string ‘%s’", out)
+	}
+}

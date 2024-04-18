@@ -363,9 +363,9 @@ func (reader *reader) parseString() (string, error) {
 }
 
 // validNameStartChar returns whether or not the rune ‘r’ is a legal rune in the
-// first position an XML tag name.
+// first position an XML tag name, or a slash.
 func validNameStartChar(r rune) bool {
-	return r == ':' || r == '_' ||
+	return r == '/' || r == ':' || r == '_' ||
 		(r >= 'A' && r <= 'Z') ||
 		(r >= 'a' && r <= 'z') ||
 		(r >= 0x000C0 && r <= 0x000D6) ||

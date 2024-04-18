@@ -1,4 +1,4 @@
-.Dd $Mdocdate: November 1 2023 $
+.Dd $Mdocdate: April 18 2024 $
 .Dt GSP 5
 .Os
 .Sh NAME
@@ -33,6 +33,11 @@ html lang="en" {
   body {
     p #my-id  {- This is a paragraph with the id ‘my-id’     }
     p .my-cls {- This is a paragraph with the class ‘my-cls’ }
+
+    / div {
+        p {- This entire div is commented out. }
+        p {- Isn’t that neat? }
+    }
 
     p
       #some-id
@@ -99,6 +104,20 @@ Node names follow the exact same naming rules as names do in XML.
 See the XML reference in
 .Sx SEE ALSO
 for more details.
+.Ss Comments
+Comments can be created by using the special
+.Sq /
+node name.
+During transpilation any nodes named
+.Sq /
+and their children are commented out:
+.Pp
+.Bd -literal -offset indent
+div {
+  / p {-I am commented out}
+  p {-I am not commented out}
+}
+.Ed
 .Ss Attributes
 Attributes are optional components of a node.
 They take the form of an attribute name and an optional attribute value.
