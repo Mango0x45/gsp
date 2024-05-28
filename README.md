@@ -47,11 +47,21 @@ $ man 5 gsp  # language documentation
 
 ## Why Not Use Pug or [INSERT LANGUAGE HERE]
 
-Simply put, they are all trash.  Pug has decent syntax but requires you use
+~Simply put, they are all trash.  Pug has decent syntax but requires you use
 JavaScript.  All the others fall for the same kind of problem.  As far as I
 could find, there is no pre-GSP transpiler from good syntax to HTML that works
 as just one binary you call on some files.  All options force you into needing
-to write JavaScript/Ruby/etc. scripts, which just isn’t good enough.
+to write JavaScript/Ruby/etc. scripts, which just isn’t good enough.~
+
+Update 28-05-2024:
+
+Turns out that PugCLI exists, which I actually did search for in the past but
+somehow could not find.  As a result my previous statements above do not hold,
+although I still find it irritating that all ‘mainstream’ besides Pug that I am
+aware of (as of this update) don’t just support basic single-binary usage.
+
+Feel free to use Pug, I simply do not care for the many Pug features I deem
+useless or unergonomic (or both).
 
 ## Syntax Example
 
