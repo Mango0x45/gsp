@@ -115,9 +115,7 @@ loop:
 	}
 
 	// The above loop guarantees that we have the ‘}’ token.
-	if _, err = reader.readRune(); err != nil {
-		return
-	}
+	_, err = reader.readRune()
 	return
 }
 
