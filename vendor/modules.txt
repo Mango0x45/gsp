@@ -1,0 +1,9 @@
+# git.sr.ht/~mango/opts/v2 v2.0.0
+## explicit; go 1.21.4
+git.sr.ht/~mango/opts/v2
+# github.com/tdewolff/parse/v2 v2.8.11
+## explicit; go 1.11
+github.com/tdewolff/parse/v2
+github.com/tdewolff/parse/v2/buffer
+github.com/tdewolff/parse/v2/css
+github.com/tdewolff/parse/v2/js
