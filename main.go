@@ -14,8 +14,10 @@ var cflag, dflag bool
 func main() {
 	flags, rest, err := opts.GetLong(os.Args, []opts.LongOpt{
 		{Short: 'c', Long: "keep-comments", Arg: opts.None},
+		{Short: 'C', Long: "clear-path", Arg: opts.None},
 		{Short: 'd', Long: "no-doctype", Arg: opts.None},
 		{Short: 'h', Long: "help", Arg: opts.None},
+		{Short: 'I', Long: "include", Arg: opts.Required},
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
@@ -26,27 +28,37 @@ func main() {
 		os.Exit(1)
 	}
 
+	fopts := formatter.Options{
+		Doctype: true,
+		/* TODO: Support Windows */
+		SearchPath: []string{installPrefix + "/share/gsp/macros"},
+	}
+
 	for _, f := range flags {
 		switch f.Key {
 		case 'c':
-			cflag = true
+			fopts.Comments = true
+		case 'C':
+			fopts.SearchPath = []string{}
 		case 'd':
-			dflag = true
+			fopts.Doctype = false
+		case 'I':
+			fopts.SearchPath = append(fopts.SearchPath, f.Value)
 		case 'h':
 			panic("TODO")
 		}
 	}
 
 	if len(rest) == 0 {
-		process("-")
+		process("-", fopts)
 	}
 
 	for _, a := range rest {
-		process(a)
+		process(a, fopts)
 	}
 }
 
-func process(filename string) {
+func process(filename string, fopts formatter.Options) {
 	var file *os.File
 	var err error
 
@@ -65,10 +77,7 @@ func process(filename string) {
 		die(err)
 	}
 
-	if !dflag {
-		fmt.Print("<!DOCTYPE html>")
-	}
-	if err = formatter.WriteAst(os.Stdout, ast); err != nil {
+	if err = formatter.WriteAst(os.Stdout, ast, fopts); err != nil {
 		die(err)
 	}
 	fmt.Print("\n")

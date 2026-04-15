@@ -185,6 +185,11 @@ outer:
 		}
 	}
 
+	if name[0] == '$' {
+		ty = ast.Macro
+		name = name[1:]
+	}
+
 	return ast.Node{
 		Type:       ty,
 		Name:       name,
@@ -226,7 +231,12 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 		in.Move(n)
 	}
 
-	return string(in.Shift()), nil
+	s := string(in.Shift())
+	if !attr && s == "$" {
+		return "", newInvalidSyntax(in,
+			"macro name", "nothing")
+	}
+	return s, nil
 }
 
 func parseShorthand(in *parse.Input) (string, error) {
@@ -452,7 +462,7 @@ func skipSpaces(in *parse.Input) error {
 }
 
 func validNameStartChar(r rune) bool {
-	return r == ':' || r == '_' ||
+	return r == '$' || r == ':' || r == '_' ||
 		(r >= 'A' && r <= 'Z') ||
 		(r >= 'a' && r <= 'z') ||
 		(r >= 0x000C0 && r <= 0x000D6) ||

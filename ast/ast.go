@@ -9,6 +9,7 @@ const (
 	Escapable
 	Raw
 	Text
+	Macro
 )
 
 type Node struct {

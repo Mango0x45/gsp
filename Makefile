@@ -3,24 +3,28 @@
 PREFIX = /usr/local
 DPREFIX = ${DESTDIR}${PREFIX}
 
-all: gsp
-gsp:
+all: build
+build:
+	printf 'package main\nconst installPrefix = "%s"\n' "${PREFIX}" \
+		>config.gen.go
 	go build
 
 install:
-	mkdir -p ${DPREFIX}/bin \
-	         ${DPREFIX}/share/man/man1 \
+	mkdir -p ${DPREFIX}/bin                                                     \
+	         ${DPREFIX}/share/gsp                                               \
+	         ${DPREFIX}/share/man/man1                                          \
 	         ${DPREFIX}/share/man/man5
-	cp ${target}   ${DPREFIX}/bin
-	cp ${target}.1 ${DPREFIX}/share/man/man1
-	cp ${target}.5 ${DPREFIX}/share/man/man5
+	cp gsp   ${DPREFIX}/bin
+	cp gsp.1 ${DPREFIX}/share/man/man1
+	cp gsp.5 ${DPREFIX}/share/man/man5
+	cp -R macros ${DPREFIX}/share/gsp
 
 dist:
 	mkdir -p dist
-	for os in darwin linux windows; do \
-		for arch in amd64 arm64; do \
-			GOARCH=$$arch GOOS=$$os go build -o dist/gsp-$$os-$$arch; \
-		done; \
+	for os in darwin linux windows; do                                          \
+		for arch in amd64 arm64; do                                             \
+			GOARCH=$$arch GOOS=$$os go build -o dist/gsp-$$os-$$arch;           \
+		done;                                                                   \
 	done
 
 test:
@@ -31,3 +35,5 @@ patch:
 
 clean:
 	rm -rf dist
+
+.PHONY: all build clean dist install patch test

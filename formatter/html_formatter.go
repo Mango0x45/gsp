@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"cmp"
 	"fmt"
 	"html"
 	"io"
@@ -10,51 +11,66 @@ import (
 	"git.thomasvoss.com/gsp/ast"
 )
 
-func WriteAst(out io.Writer, ast []ast.Node) error {
+type Options struct {
+	Comments   bool
+	Doctype    bool
+	SearchPath []string
+}
+
+func WriteAst(out io.Writer, ast []ast.Node, opts Options) error {
+	if opts.Doctype {
+		_, err := fmt.Fprint(out, "<!DOCTYPE html>")
+		if err != nil {
+			return err
+		}
+	}
+	return writeNodes(out, ast, opts)
+}
+
+func writeNodes(out io.Writer, ast []ast.Node, opts Options) error {
 	for _, n := range ast {
-		if err := writeNode(out, n); err != nil {
+		if err := writeNode(out, n, opts); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func writeNode(out io.Writer, node ast.Node) error {
+func writeNode(out io.Writer, node ast.Node, opts Options) error {
 	var e1, e2, e3 error
 
 	switch node.Type {
 	case ast.Comment:
-		e1 = writeCommentStart(out)
-		e2 = WriteAst(out, node.Children)
-		e3 = writeCommentEnd(out)
+		if opts.Comments {
+			e1 = writeCommentStart(out)
+			e2 = writeNodes(out, node.Children, opts)
+			e3 = writeCommentEnd(out)
+		}
+	case ast.Macro:
+		path, ok := findMacro(node.Name, opts.SearchPath)
+		if !ok {
+			return fmt.Errorf("%s: failed to find macro", node.Name)
+		}
+		nodes, err := execMacro(path, node)
+		if err != nil {
+			return err
+		}
+		e1 = writeNodes(out, nodes, opts)
 	case ast.Normal, ast.Escapable:
 		e1 = writeOpenTag(out, node)
-		e2 = WriteAst(out, node.Children)
+		e2 = writeNodes(out, node.Children, opts)
 		e3 = writeCloseTag(out, node)
 	case ast.Void:
 		e1 = writeOpenTag(out, node)
 	case ast.Raw:
 		e1 = writeOpenTag(out, node)
-
-		/* This is only reached by <script> and <style> tags, where we
-		   assume either 0 or 1 children, and where the child (if it
-		   exists) is a text node */
-		if len(node.Children) == 1 {
-			e2 = writeText(out, node.Children[0].Name)
-		}
-
+		e2 = writeRawText(out, node.Children[0].Name)
 		e3 = writeCloseTag(out, node)
 	case ast.Text:
 		e1 = writeText(out, html.EscapeString(node.Name))
 	}
 
-	if e1 != nil {
-		return e1
-	}
-	if e2 != nil {
-		return e2
-	}
-	return e3
+	return cmp.Or(e1, e2, e3)
 }
 
 func writeOpenTag(out io.Writer, node ast.Node) error {
@@ -95,7 +111,20 @@ func writeCommentEnd(out io.Writer) error {
 	return err
 }
 
-func writeText(out io.Writer, s string) error {
+func writeRawText(out io.Writer, s string) error {
 	_, err := out.Write([]byte(s))
 	return err
+}
+
+func writeText(out io.Writer, s string) error {
+	bs := []byte(s)
+	for i := 0; i < len(bs); i++ {
+		if bs[i] == '\\' {
+			i++
+		}
+		if _, err := out.Write([]byte{bs[i]}); err != nil {
+			return err
+		}
+	}
+	return nil
 }

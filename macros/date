@@ -1,0 +1,4 @@
+#!/bin/sh
+
+[ -n "$GSP_TZ" ] && export TZ="$GSP_TZ"
+printf 'span {- %s}' "$(date ${GSP_FORMAT:+"+$GSP_FORMAT"})"

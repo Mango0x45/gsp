@@ -3,8 +3,11 @@ Writing HTML can be made more bearable using things like Emmet, but
 it’s still not great, and the syntax is far too bloated, visually
 polluting your documents.  It is for this reason that GSP exists.
 
-GSP supports templating via macros that execute shell scripts,
-allowing GSP to integrate nicely into the UNIX environment.
+GSP supports templating via macros.  When a macro `$foo` is used in a
+GSP document, the script `foo` is searched for in GSP’s search path
+and executed, with the result printed to stdout replacing the macro in
+the document.  Details about writing macros can be found in the
+`gsp(5)` manual.
 
 ## Source Installation
 
@@ -45,10 +48,6 @@ $ man 5 gsp  # language documentation
 ## Syntax Example
 
 ```gsp
-macro today {
-	date '+%A, %d %B %Y'
-}
-
 html lang="en" {
 	head {
 		meta charset="UTF-8" {}
@@ -89,7 +88,7 @@ html lang="en" {
 		}
 	}
 	footer {-
-		Written on @$today{}
+		Written on @$date format="%d %B %Y" {}
 	}
 }
 ```
