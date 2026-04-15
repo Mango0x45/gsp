@@ -9,22 +9,31 @@ import (
 	"git.thomasvoss.com/gsp/parser"
 )
 
-var dflag bool
+var cflag, dflag bool
 
 func main() {
 	flags, rest, err := opts.GetLong(os.Args, []opts.LongOpt{
+		{Short: 'c', Long: "keep-comments", Arg: opts.None},
 		{Short: 'd', Long: "no-doctype", Arg: opts.None},
+		{Short: 'h', Long: "help", Arg: opts.None},
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
-		fmt.Fprintf(os.Stderr, "Usage: %s [-d] [file ...]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr,
+			"Usage: %s [-cd] [file ...]\n"+
+				"       %s -h\n",
+			os.Args[0], os.Args[0])
 		os.Exit(1)
 	}
 
 	for _, f := range flags {
 		switch f.Key {
+		case 'c':
+			cflag = true
 		case 'd':
 			dflag = true
+		case 'h':
+			panic("TODO")
 		}
 	}
 
@@ -51,7 +60,7 @@ func process(filename string) {
 		defer file.Close()
 	}
 
-	ast, err := parser.ParseFile(file)
+	ast, err := parser.Parse(file)
 	if err != nil {
 		die(err)
 	}
@@ -59,7 +68,9 @@ func process(filename string) {
 	if !dflag {
 		fmt.Print("<!DOCTYPE html>")
 	}
-	formatter.PrintAst(ast)
+	if err = formatter.WriteAst(os.Stdout, ast); err != nil {
+		die(err)
+	}
 	fmt.Print("\n")
 }
 

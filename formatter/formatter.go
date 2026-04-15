@@ -2,136 +2,100 @@ package formatter
 
 import (
 	"fmt"
-	"unicode"
+	"html"
+	"io"
+	"maps"
+	"strings"
 
-	"git.thomasvoss.com/gsp/parser"
+	"git.thomasvoss.com/gsp/ast"
 )
 
-var (
-	attrValueEscapes = map[rune]string{
-		'"': "&quot;",
-		'&': "&amp;",
-		'<': "&lt;",
-	}
-	stringEscapes = map[rune]string{
-		'"':  "&quot;",
-		'&':  "&amp;",
-		'<':  "&lt;",
-		'>':  "&gt;",
-		'\'': "&apos;",
-	}
-)
-
-func PrintAst(ast parser.AstNode) {
-	switch ast.Type {
-	case parser.Text:
-		printText(ast.Text)
-	case parser.Normal:
-		if ast.Text == "/" {
-			return
+func WriteAst(out io.Writer, ast []ast.Node) error {
+	for _, n := range ast {
+		if err := writeNode(out, n); err != nil {
+			return err
 		}
-		fmt.Printf("<%s", ast.Text)
-		printAttrs(ast.Attrs)
-		fmt.Print(">")
-
-		if len(ast.Children) > 0 {
-			printChildren(ast.Children)
-			fmt.Printf("</%s>", ast.Text)
-		}
-	case parser.Tagless:
-		printChildren(ast.Children)
-	case parser.TaglessTrim:
-		printChildrenTrim(ast.Children)
 	}
+	return nil
 }
 
-func printAttrs(attrs []parser.Attr) {
-	classes := make([]parser.Attr, 0, cap(attrs))
-	nClasses := make([]parser.Attr, 0, cap(attrs))
+func writeNode(out io.Writer, node ast.Node) error {
+	var e1, e2, e3 error
 
-	for _, a := range attrs {
-		if a.Key == "class" {
-			classes = append(classes, a)
+	switch node.Type {
+	case ast.Comment:
+		e1 = writeCommentStart(out)
+		e2 = WriteAst(out, node.Children)
+		e3 = writeCommentEnd(out)
+	case ast.Normal, ast.Escapable:
+		e1 = writeOpenTag(out, node)
+		e2 = WriteAst(out, node.Children)
+		e3 = writeCloseTag(out, node)
+	case ast.Void:
+		e1 = writeOpenTag(out, node)
+	case ast.Raw:
+		e1 = writeOpenTag(out, node)
+
+		/* This is only reached by <script> and <style> tags, where we
+		   assume either 0 or 1 children, and where the child (if it
+		   exists) is a text node */
+		if len(node.Children) == 1 {
+			e2 = writeText(out, node.Children[0].Name)
+		}
+
+		e3 = writeCloseTag(out, node)
+	case ast.Text:
+		e1 = writeText(out, html.EscapeString(node.Name))
+	}
+
+	if e1 != nil {
+		return e1
+	}
+	if e2 != nil {
+		return e2
+	}
+	return e3
+}
+
+func writeOpenTag(out io.Writer, node ast.Node) error {
+	_, err := fmt.Fprintf(out, "<%s", node.Name)
+	if err != nil {
+		return err
+	}
+
+	for k, vs := range maps.All(node.Attributes) {
+		v := html.EscapeString(strings.Join(vs, " "))
+		if len(v) == 0 {
+			_, err = fmt.Fprintf(out, ` %s`, k)
 		} else {
-			nClasses = append(nClasses, a)
+			_, err = fmt.Fprintf(out, ` %s="%s"`, k, v)
+		}
+
+		if err != nil {
+			return err
 		}
 	}
 
-	if len(classes) > 0 {
-		fmt.Print(" class=\"")
-		for i, a := range classes {
-			printAttrVal(a.Value)
-			if i != len(classes)-1 {
-				fmt.Print(" ")
-			} else {
-				fmt.Print("\"")
-			}
-		}
-	}
-
-	for _, a := range nClasses {
-		fmt.Printf(" %s", a.Key)
-		if a.Value != "" {
-			fmt.Print("=\"")
-			printAttrVal(a.Value)
-			fmt.Print("\"")
-		}
-	}
+	_, err = fmt.Fprint(out, ">")
+	return err
 }
 
-func printAttrVal(s string) {
-	for _, r := range s {
-		if v, ok := attrValueEscapes[r]; ok {
-			fmt.Print(v)
-		} else {
-			fmt.Printf("%c", r)
-		}
-	}
+func writeCloseTag(out io.Writer, node ast.Node) error {
+	_, err := fmt.Fprintf(out, "</%s>", node.Name)
+	return err
 }
 
-func printText(s string) {
-	for _, r := range s {
-		if v, ok := stringEscapes[r]; ok {
-			fmt.Print(v)
-		} else {
-			fmt.Printf("%c", r)
-		}
-	}
+func writeCommentStart(out io.Writer) error {
+	_, err := fmt.Fprint(out, "<!-- ")
+	return err
 }
 
-func printChildren(nodes []parser.AstNode) {
-	for _, n := range nodes {
-		PrintAst(n)
-	}
+func writeCommentEnd(out io.Writer) error {
+	_, err := fmt.Fprint(out, " -->")
+	return err
 }
 
-func printChildrenTrim(nodes []parser.AstNode) {
-	for i, n := range nodes {
-		if i == 0 && n.Type == parser.Text {
-			n.Text = trimLeftSpaces(n.Text)
-		}
-		if i == len(nodes)-1 && n.Type == parser.Text {
-			n.Text = trimRightSpaces(n.Text)
-		}
-
-		PrintAst(n)
-	}
-}
-
-func trimLeftSpaces(s string) string {
-	i := 0
-	rs := []rune(s)
-	for i < len(s) && unicode.IsSpace(rs[i]) {
-		i++
-	}
-	return string(rs[i:])
-}
-
-func trimRightSpaces(s string) string {
-	rs := []rune(s)
-	i := len(rs) - 1
-	for i >= 0 && unicode.IsSpace(rs[i]) {
-		i--
-	}
-	return string(rs[:i+1])
+func writeText(out io.Writer, s string) error {
+	_, err := out.Write([]byte(s))
+	return err
 }

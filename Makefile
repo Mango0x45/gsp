@@ -3,15 +3,8 @@
 PREFIX = /usr/local
 DPREFIX = ${DESTDIR}${PREFIX}
 
-target = gsp
-sources = main.go \
-          formatter/formatter.go \
-          parser/errors.go \
-          parser/parser.go \
-          parser/reader.go
-
-all: ${target}
-gsp: ${sources}
+all: gsp
+gsp:
 	go build
 
 install:
@@ -32,6 +25,9 @@ dist:
 
 test:
 	go test ./...
+
+patch:
+	patch vendor/github.com/tdewolff/parse/v2/position.go patches/newlines.diff
 
 clean:
 	rm -rf dist

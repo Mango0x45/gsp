@@ -16,7 +16,7 @@ func Position(r io.Reader, offset int) (line, col int, context string) {
 		c := l.Peek(0)
 		n := 1
 		newline := false
-		if c == '\n' || c == '\v' || c == '\f' {
+		if c == '\n' {
 			newline = true
 		} else if c == '\r' {
 			if l.Peek(1) == '\n' {
@@ -27,7 +27,7 @@ func Position(r io.Reader, offset int) (line, col int, context string) {
 			}
 		} else if c >= 0xC0 {
 			var r rune
-			if r, n = l.PeekRune(0); r == '\u0085' || r == '\u2028' || r == '\u2029' {
+			if r, n = l.PeekRune(0); r == '\u2028' || r == '\u2029' {
 				newline = true
 			}
 		} else if c == 0 && l.Err() != nil {

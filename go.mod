@@ -1,7 +1,8 @@
 module git.thomasvoss.com/gsp
 
-go 1.21.4
+go 1.26.1
 
-toolchain go1.22.2
-
-require git.sr.ht/~mango/opts/v2 v2.0.0
+require (
+	git.sr.ht/~mango/opts/v2 v2.0.0
+	github.com/tdewolff/parse/v2 v2.8.11
+)
