@@ -10,8 +10,6 @@ import (
 	"git.thomasvoss.com/gsp/parser"
 )
 
-var cflag, dflag bool
-
 func main() {
 	flags, rest, err := opts.GetLong(os.Args, []opts.LongOpt{
 		{Short: 'c', Long: "keep-comments", Arg: opts.None},
