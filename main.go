@@ -11,17 +11,11 @@ import (
 )
 
 func main() {
-	flags, rest, err := opts.GetLong(os.Args, []opts.LongOpt{
-		{Short: 'c', Long: "keep-comments", Arg: opts.None},
-		{Short: 'C', Long: "clear-path", Arg: opts.None},
-		{Short: 'd', Long: "no-doctype", Arg: opts.None},
-		{Short: 'h', Long: "help", Arg: opts.None},
-		{Short: 'I', Long: "include", Arg: opts.Required},
-	})
+	flags, rest, err := opts.Get(os.Args, "cdhI:")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
 		fmt.Fprintf(os.Stderr,
-			"Usage: %s [-cCd] [-I dirname] [file ...]\n"+
+			"Usage: %s [-cd] [-I dirname] [file ...]\n"+
 				"       %s -h\n",
 			os.Args[0], os.Args[0])
 		os.Exit(1)
@@ -38,11 +32,11 @@ func main() {
 			fopts.Comments = true
 		case 'd':
 			fopts.Doctype = false
-		case 'I':
-			fopts.SearchPath = append(fopts.SearchPath, f.Value)
 		case 'h':
 			openManual()
 			os.Exit(0)
+		case 'I':
+			fopts.SearchPath = append(fopts.SearchPath, f.Value)
 		}
 	}
 
