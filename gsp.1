@@ -1,28 +1,58 @@
-.Dd $Mdocdate: April 18 2024 $
+.Dd April 15, 2026
 .Dt GSP 1
 .Os
 .Sh NAME
 .Nm gsp
-.Nd better syntax for HTML
+.Nd HTML-compatible markup language
 .Sh SYNOPSIS
 .Nm
-.Op Fl d
+.Op Fl cd
+.Op Fl I Ar dirname
 .Op Ar
+.Nm
+.Fl h
 .Sh DESCRIPTION
+This manual documents the
+.Nm
+cli tool.
+For documentation regarding the GSP language itself,
+see the
+.Sx SEE ALSO
+section of this manual.
+.Pp
 .Nm
 is a utility to transpile
 .Xr gsp 5
-formatted plain-text files into valid HTML.
-Files provided as command-line arguments will be transpiled with the result
-being written to the standard output.
+formatted documents into valid HTML.
+Files provided as command-line arguments are transpiled with the
+results written to the standard output.
 If no arguments or the special filename
 .Pa -
 is provided, then input will be read from the standard input.
 .Pp
+By default
+.Nm
+will search for macros referenced in the supplied documents in
+.Pa ./macros ,
+but additional directories can be added to the macro search path by
+way of the
+.Fl I
+option.
+.Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl d , Fl Fl no\-doctype
-Do not automatically generate a document type at the beginning of the document.
+.It Fl c
+Transliterate GSP comments into HTML comments.
+The default behaviour is to drop comments.
+.It Fl d
+Do not automatically generate a doctype declaration at the beginning
+of the document.
+.It Fl h
+Display help information by opening this manual page.
+.It Fl I Ar dirname
+Add
+.Ar dirname
+to the macro search path.
 .El
 .Sh EXIT STATUS
 .Ex -std gsp
@@ -35,18 +65,11 @@ into one HTML document:
 .Pp
 .Dl $ gsp head.gsp tail.gsp >out.html
 .Pp
-Expand
-.Xr m4 1
-macros before transpiling:
-.Pp
-.Dl $ m4 foo.gsp | gsp
-.Pp
 Use your own document type instead of the HTML5 one:
 .Pp
-.Dl $ printf \(aq%s%s\(aq \(dq$doctype\(dq \(dq$(gsp -d foo.gsp)\(dq
+.Dl $ { printf \(aq%s\(aq \(dq$doctype\(dq; gsp -d index.gsp; } >index.html
 .Sh SEE ALSO
-.Xr m4 1 ,
-.Xr sed 1 ,
-.Xr gsp 5
+.Xr gsp 5 ,
+.Xr gsp_macros 7
 .Sh AUTHORS
 .An Thomas Voss Aq Mt mail@thomasvoss.com
