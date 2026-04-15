@@ -31,16 +31,13 @@ func main() {
 
 	fopts := formatter.Options{
 		Doctype: true,
-		/* TODO: Support Windows */
-		SearchPath: []string{installPrefix + "/share/gsp/macros"},
+		SearchPath: []string{"./macros"},
 	}
 
 	for _, f := range flags {
 		switch f.Key {
 		case 'c':
 			fopts.Comments = true
-		case 'C':
-			fopts.SearchPath = []string{}
 		case 'd':
 			fopts.Doctype = false
 		case 'I':

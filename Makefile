@@ -3,21 +3,17 @@
 PREFIX = /usr/local
 DPREFIX = ${DESTDIR}${PREFIX}
 
-all: build
-build:
-	printf 'package main\nconst installPrefix = "%s"\n' "${PREFIX}" \
-		>config.gen.go
+all: gsp
+gsp:
 	go build
 
 install:
 	mkdir -p ${DPREFIX}/bin                                                     \
-	         ${DPREFIX}/share/gsp                                               \
 	         ${DPREFIX}/share/man/man1                                          \
 	         ${DPREFIX}/share/man/man5
 	cp gsp   ${DPREFIX}/bin
 	cp gsp.1 ${DPREFIX}/share/man/man1
 	cp gsp.5 ${DPREFIX}/share/man/man5
-	cp -R macros ${DPREFIX}/share/gsp
 
 dist:
 	mkdir -p dist
@@ -36,4 +32,4 @@ patch:
 clean:
 	rm -rf dist
 
-.PHONY: all build clean dist install patch test
+.PHONY: all clean dist gsp install patch test
