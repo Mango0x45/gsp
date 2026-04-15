@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"git.sr.ht/~mango/opts/v2"
 	"git.thomasvoss.com/gsp/formatter"
@@ -45,7 +46,8 @@ func main() {
 		case 'I':
 			fopts.SearchPath = append(fopts.SearchPath, f.Value)
 		case 'h':
-			panic("TODO")
+			openManual()
+			os.Exit(0)
 		}
 	}
 
@@ -81,6 +83,17 @@ func process(filename string, fopts formatter.Options) {
 		die(err)
 	}
 	fmt.Print("\n")
+}
+
+func openManual() {
+	cmd := exec.Command("man", "1", "gsp")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		die(err)
+	}
 }
 
 func die(e error) {
