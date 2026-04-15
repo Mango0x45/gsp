@@ -24,6 +24,7 @@ var tagToType = map[string]ast.NodeType{
 	"input":    ast.Void,
 	"link":     ast.Void,
 	"meta":     ast.Void,
+	"param":    ast.Void,
 	"script":   ast.Raw,
 	"source":   ast.Void,
 	"style":    ast.Raw,
