@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"fmt"
+	"io"
 	"maps"
 	"os"
 	"os/exec"
@@ -25,7 +26,9 @@ func findMacro(name string, dirs []string) (string, bool) {
 	return "", false
 }
 
-func execMacro(path string, node ast.Node) ([]ast.Node, error) {
+func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
+	verbatim := node.Type == ast.VerbatimMacro
+
 	env := os.Environ()
 	for k, v := range maps.All(node.Attributes) {
 		env = append(env, fmt.Sprintf("GSP_%s=%s",
@@ -40,26 +43,39 @@ func execMacro(path string, node ast.Node) ([]ast.Node, error) {
 	}
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return []ast.Node{}, err
-	}
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return []ast.Node{}, err
-	}
-	if err = cmd.Start(); err != nil {
-		return []ast.Node{}, err
-	}
-	if err = WriteUntranslatedAST(stdin, node.Children); err != nil {
-		return []ast.Node{}, err
-	}
-	stdin.Close()
-	nodes, err := parser.Parse(stdout)
-	if err != nil {
-		return []ast.Node{}, err
-	}
-	if err = cmd.Wait(); err != nil {
-		return []ast.Node{}, err
+		return err
 	}
 
-	return nodes, nil
+	var stdout io.ReadCloser
+	if verbatim {
+		cmd.Stdout = out
+	} else {
+		stdout, err = cmd.StdoutPipe()
+		if err != nil {
+			return err
+		}
+	}
+
+	if err = cmd.Start(); err != nil {
+		return err
+	}
+	if err = WriteUntranslatedAST(stdin, node.Children); err != nil {
+		return err
+	}
+	stdin.Close()
+
+	if verbatim {
+		nodes, err := parser.Parse(stdout)
+		if err != nil {
+			return err
+		}
+		if err = writeNodes(out, nodes, opts); err != nil {
+			return err
+		}
+	}
+	if err = cmd.Wait(); err != nil {
+		return err
+	}
+
+	return nil
 }

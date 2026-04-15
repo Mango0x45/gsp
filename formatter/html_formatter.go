@@ -46,16 +46,12 @@ func writeNode(out io.Writer, node ast.Node, opts Options) error {
 			e2 = writeNodes(out, node.Children, opts)
 			e3 = writeCommentEnd(out)
 		}
-	case ast.Macro:
+	case ast.Macro, ast.VerbatimMacro:
 		path, ok := findMacro(node.Name, opts.SearchPath)
 		if !ok {
 			return fmt.Errorf("%s: failed to find macro", node.Name)
 		}
-		nodes, err := execMacro(path, node)
-		if err != nil {
-			return err
-		}
-		e1 = writeNodes(out, nodes, opts)
+		e1 = execMacro(out, path, node, opts)
 	case ast.Normal, ast.Escapable:
 		e1 = writeOpenTag(out, node)
 		e2 = writeNodes(out, node.Children, opts)

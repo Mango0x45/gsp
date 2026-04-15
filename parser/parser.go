@@ -187,8 +187,13 @@ outer:
 	}
 
 	if name[0] == '$' {
-		ty = ast.Macro
-		name = name[1:]
+		if name[1] == '$' {
+			ty = ast.VerbatimMacro
+			name = name[2:]
+		} else {
+			ty = ast.Macro
+			name = name[1:]
+		}
 	}
 
 	return ast.Node{
@@ -233,7 +238,7 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 	}
 
 	s := string(in.Shift())
-	if !attr && s == "$" {
+	if !attr && s == "$" || s == "$$" {
 		return "", newInvalidSyntax(in,
 			"macro name", "nothing")
 	}

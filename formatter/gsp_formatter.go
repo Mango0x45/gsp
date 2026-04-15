@@ -31,6 +31,10 @@ func writeUntranslatedNode(out io.Writer, node ast.Node) error {
 		_, e1 = fmt.Fprint(out, "$")
 		e2 = writeUntranslatedTag(out, node)
 		e3 = writeUntranslatedBody(out, node)
+	case ast.VerbatimMacro:
+		_, e1 = fmt.Fprint(out, "$$")
+		e2 = writeUntranslatedTag(out, node)
+		e3 = writeUntranslatedBody(out, node)
 	case ast.Normal, ast.Escapable, ast.Void:
 		e1 = writeUntranslatedTag(out, node)
 		e2 = writeUntranslatedBody(out, node)

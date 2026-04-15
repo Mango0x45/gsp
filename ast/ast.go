@@ -10,6 +10,7 @@ const (
 	Raw
 	Text
 	Macro
+	VerbatimMacro
 )
 
 type Node struct {

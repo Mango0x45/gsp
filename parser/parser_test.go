@@ -160,6 +160,25 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
+			name:  "Verbatim macro node",
+			input: `$$syntax_highlight lang="c" {-extern int optind;}`,
+			want: []ast.Node{
+				{
+					Type: ast.VerbatimMacro,
+					Name: "syntax_highlight",
+					Attributes: map[string][]string{
+						"lang": {"c"},
+					},
+					Children: []ast.Node{
+						{
+							Type: ast.Text,
+							Name: "extern int optind;",
+						},
+					},
+				},
+			},
+		},
+		{
 			name:  "Comment node",
 			input: `/ div { p {} }`,
 			want: []ast.Node{
@@ -380,6 +399,11 @@ func TestParse(t *testing.T) {
 		{
 			name:    "Invalid macro name syntax",
 			input:   `$ {}`,
+			wantErr: true,
+		},
+		{
+			name:    "Invalid verbatim macro name syntax",
+			input:   `$$ {}`,
 			wantErr: true,
 		},
 		{

@@ -127,6 +127,20 @@ func TestWriteUntranslatedAST(t *testing.T) {
 			want: `$date format="%Y" {}`,
 		},
 		{
+			name: "Verbatim macro node",
+			nodes: []ast.Node{
+				{
+					Type: ast.VerbatimMacro,
+					Name: "syntax_highlight",
+					Attributes: map[string][]string{
+						"lang": {"c"},
+					},
+					Children: []ast.Node{},
+				},
+			},
+			want: `$$syntax_highlight lang="c" {}`,
+		},
+		{
 			name: "Nested regular block",
 			nodes: []ast.Node{
 				{
