@@ -22,7 +22,7 @@ func main() {
 	}
 
 	fopts := formatter.Options{
-		Doctype: true,
+		Doctype:    true,
 		SearchPath: []string{"./macros"},
 	}
 
