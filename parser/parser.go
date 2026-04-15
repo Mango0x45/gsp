@@ -38,11 +38,14 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 	in := parse.NewInput(r)
 	var nodes []ast.Node
 
-	if err := skipSpaces(in); err != nil {
-		return []ast.Node{}, err
-	}
-
 	for {
+		switch err := skipSpaces(in); {
+		case err == io.EOF:
+			return nodes, nil
+		case err != nil:
+			return []ast.Node{}, err
+		}
+
 		n, err := parseNode(in)
 		switch {
 		case err == io.EOF:
@@ -51,13 +54,6 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 			return []ast.Node{}, err
 		}
 		nodes = append(nodes, n)
-
-		switch err = skipSpaces(in); {
-		case err == io.EOF:
-			return nodes, nil
-		case err != nil:
-			return []ast.Node{}, err
-		}
 	}
 }
 
