@@ -57,6 +57,22 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 }
 
 func parseNode(in *parse.Input) (ast.Node, error) {
+	if in.Peek(0) == '/' {
+		in.Move(1)
+		if err := skipSpaces(in); err != nil {
+			return ast.Node{}, err
+		}
+		n, err := parseNode(in)
+		if err != nil {
+			return ast.Node{}, err
+		}
+		return ast.Node{
+			Type:     ast.Comment,
+			Name:     "/",
+			Children: []ast.Node{n},
+		}, nil
+	}
+
 	name, err := parseIdent(in, false)
 	if err != nil {
 		return ast.Node{}, err
@@ -169,9 +185,6 @@ outer:
 		}
 	}
 
-	if name == "/" {
-		ty = ast.Comment
-	}
 	return ast.Node{
 		Type:       ty,
 		Name:       name,
@@ -187,20 +200,18 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 		return "", in.Err()
 	}
 
-	if attr || r != '/' {
-		if !validNameStartChar(r) {
-			expected := "node name"
-			if attr {
-				expected = "attribute name"
-			}
-			return "", newInvalidSyntax(in,
-				expected,
-				fmt.Sprintf("invalid character ‘%c’", r))
-		} else if !attr && !validNameChar(r) {
-			return "", newInvalidSyntax(in,
-				"class/id shorthand",
-				fmt.Sprintf("invalid character ‘%c’", r))
+	if !validNameStartChar(r) {
+		expected := "node name"
+		if attr {
+			expected = "attribute name"
 		}
+		return "", newInvalidSyntax(in,
+			expected,
+			fmt.Sprintf("invalid character ‘%c’", r))
+	} else if !attr && !validNameChar(r) {
+		return "", newInvalidSyntax(in,
+			"class/id shorthand",
+			fmt.Sprintf("invalid character ‘%c’", r))
 	}
 
 	in.Move(n)
@@ -215,13 +226,7 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 		in.Move(n)
 	}
 
-	s := in.Shift()
-	if len(s) > 1 && s[0] == '/' {
-		return "", newInvalidSyntax(in,
-			"node name",
-			"invalid character ‘/’")
-	}
-	return string(s), nil
+	return string(in.Shift()), nil
 }
 
 func parseShorthand(in *parse.Input) (string, error) {
