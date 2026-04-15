@@ -38,6 +38,10 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 	in := parse.NewInput(r)
 	var nodes []ast.Node
 
+	if err := skipSpaces(in); err != nil {
+		return []ast.Node{}, err
+	}
+
 	for {
 		n, err := parseNode(in)
 		switch {
