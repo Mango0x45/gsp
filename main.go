@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
 		fmt.Fprintf(os.Stderr,
-			"Usage: %s [-cd] [file ...]\n"+
+			"Usage: %s [-cCd] [-I dirname] [file ...]\n"+
 				"       %s -h\n",
 			os.Args[0], os.Args[0])
 		os.Exit(1)
