@@ -394,7 +394,8 @@ outer:
 			/* Ignore escaping EOF so that we throw a syntax error instead */
 			case 0, '@', '{', '}', '\\':
 			default:
-				return []ast.Node{}, newInvalidEscape(in, rune(ch))
+				ch, _ := in.PeekRune(0)
+				return []ast.Node{}, newInvalidEscape(in, ch)
 			}
 			in.Move(1)
 		}
