@@ -35,6 +35,11 @@ func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
 			strings.ToUpper(strings.ReplaceAll(k, "-", "_")),
 			strings.Join(v, " ")))
 	}
+	if len(node.Children) != 0 && node.Children[0].Type == ast.Text {
+		env = append(env, "GSP_TEXT_P=1")
+	} else {
+		env = append(env, "GSP_TEXT_P=0")
+	}
 
 	cmd := exec.Cmd{
 		Path:   path,
