@@ -11,9 +11,11 @@ install:
 	mkdir -p ${DPREFIX}/bin                                                     \
 	         ${DPREFIX}/share/man/man1                                          \
 	         ${DPREFIX}/share/man/man5                                          \
+	         ${DPREFIX}/share/man/man7                                          \
 	         ${DPREFIX}/share/doc/gsp
 	cp gsp ${DPREFIX}/bin
-	cp man/gsp.1 ${DPREFIX}/share/man/man1
+	cp man/*.1 ${DPREFIX}/share/man/man1
+	cp man/*.7 ${DPREFIX}/share/man/man7
 	sed 's#@DOCPATH@#${DPREFIX}/share/doc/gsp#' man/gsp.5 \
 		>${DPREFIX}/share/man/man5/gsp.5
 	cp example.gsp ${DPREFIX}/share/doc/gsp

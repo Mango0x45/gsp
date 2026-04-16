@@ -1,0 +1,147 @@
+.Dd April 16, 2026
+.Dt GSP-MACROS 7
+.Os GSP 4.0
+.Sh NAME
+.Nm gsp-macros
+.Nd macro system for GSP documents
+.Sh DESCRIPTION
+Macros offer a means to dynamically generate output using external
+executables.
+Arguments are passed from a macro invokation to the underlying macro
+executable by means of environment variables and the standard input
+allowing for the easy extension of GSP documents from any programming
+language.
+.Pp
+For details on the syntax of macros as well as the differences between
+regular and verbatim macros,
+see
+.Xr gsp 5 .
+.Ss Macro Resolution
+The manner in which macros are resolved is implementation-defined.
+When using the standard
+.Xr gsp 1
+GSP to HTML transpiler,
+a macro
+.Ql $foo
+or
+.Ql $$foo
+will be resolved by searching the macro search path for the first
+file with the name
+.Pa foo .
+When a conflict arises,
+the first match in the macro search path is used.
+.Ss Input and Output
+Macros receive their body content via the standard input,
+and are replaced in the document by their standard output.
+.Pp
+Because it is often important for syntactical reasons to know if the
+body is a regular body or a textual body,
+the
+.Ev GSP_TEXT_P
+environment variable will be set to
+.Ql 1
+when the macro body is a text body,
+and
+.Ql 0
+otherwise.
+.Pp
+It is also important when producing generated output that attribute
+values and node text bodies properly escape characters with special
+meaning.
+For this purpose it may be useful to make use of the
+.Xr gspesc 1
+tool that ships with the standard GSP distribution.
+.Ss Parameter Passing
+It is possible to pass additional parameters from the GSP document to
+macros through the use of attributes.
+Attributes provided to a macro are uppercased,
+prefixed with
+.Sq GSP_
+and inserted into the macros environment.
+Additionally all hyphens
+.Pq Sq \-
+in the attribute name are replaced with underscores
+.Pq Sq _ .
+When an attribute is provided without a value,
+the corresponding environment variable will be set with a null value.
+.Pp
+The following is a list of example translations between node
+attributes and the exposed environment variables:
+.Pp
+.Bl -tag -compact -width data-name="~tvoss"
+.It data-name=\(dq~tvoss\(dq
+.Ev GSP_DATA_NAME=~tvoss
+.It disabled
+.Ev GSP_DISABLED=
+.It lang=\(dqen\(dq
+.Ev GSP_LANG=en
+.El
+.Sh ENVIRONMENT
+.\" TODO
+.\" GSP_TEXT_P
+.Sh EXAMPLES
+The following macro expands into a
+.Ql time
+node representing the current date and time in the specified timezone.
+If no timezone is specified,
+it defaults to the local timezone.
+.Bd -literal -offset indent
+#!/bin/sh
+# File saved as \(oqnow\(cq in the macro search path
+
+[ -n "$GSP_TZ" ] && export TZ="$GSP_TZ"
+
+cat <<EOF
+time datetime=\(dq$(date \(aq+%Y-%m-%dT%T\(aq)\(dq {-
+	$(date \(aq+%H:%M &ndash; %A, %e %B %Y\(aq)
+}
+EOF
+.Ed
+.Pp
+The above macro can then be used in a GSP document like so:
+.Bd -literal -offset indent
+p {- Published at @$now tz="Europe/Stockholm" {}}
+.Ed
+.Pp
+The following macro generates a section header with an auto-generated
+ID:
+.Bd -literal -offset indent
+#!/bin/sh
+
+if [ \(dq$GSP_TEXT_P\(dq -eq 0 ]
+then
+	>&2 printf \(aqheader: macro only accepts text bodies\en\(aq
+	exit 1
+fi
+
+title=\(dq$(cat)\(dq
+id=\(dq$(
+	echo \(dq$title\(dq            \e
+	| sed \(aqs/^ *//; s/ *$//\(aq \e
+	| tr \(aqA-Z_ \(aq \(aqa-z--\(aq     \e
+	| tr -dc \(aqa-z--\(aq
+)\(dq
+
+# Important that we use \(oq{=\(cq here to respect the user\(cqs original
+# whitespace control settings.  If the user used \(oq{-\(cq the input
+# will already have been trimmed for us.
+printf \(aqh2 #%s {=%s}\(aq \(dq$id\(dq \(dq$title\(dq
+.Ed
+.Pp
+The above macro can then be used in a GSP document like so:
+.Bd -literal -offset indent
+article {
+	$header {- GSP Macro Reference }
+	p {-
+		Macros offer a means to dynamically generate output
+		using external executables.
+	}
+}
+.Ed
+.Sh SEE ALSO
+.Xr gsp 1 ,
+.Xr gspesc 1 ,
+.Xr sh 1 ,
+.Xr gsp 5
+.Sh AUTHORS
+.An Thomas Voss Aq Mt mail@thomasvoss.com
