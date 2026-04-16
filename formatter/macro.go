@@ -64,7 +64,7 @@ func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
 	}
 	stdin.Close()
 
-	if verbatim {
+	if !verbatim {
 		nodes, err := parser.Parse(stdout)
 		if err != nil {
 			return err
