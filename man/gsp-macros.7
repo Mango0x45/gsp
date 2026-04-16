@@ -77,8 +77,15 @@ attributes and the exposed environment variables:
 .Ev GSP_LANG=en
 .El
 .Sh ENVIRONMENT
-.\" TODO
-.\" GSP_TEXT_P
+.Bl -tag -width Ds
+.It Ev GSP_TEXT_P
+From within a macro,
+set to
+.Sq 1
+if the macro node was given a text body and
+.Sq 0
+otherwise.
+.El
 .Sh EXAMPLES
 The following macro expands into a
 .Ql time
