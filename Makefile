@@ -11,9 +11,9 @@ install:
 	mkdir -p ${DPREFIX}/bin                                                     \
 	         ${DPREFIX}/share/man/man1                                          \
 	         ${DPREFIX}/share/man/man5
-	cp gsp   ${DPREFIX}/bin
-	cp gsp.1 ${DPREFIX}/share/man/man1
-	cp gsp.5 ${DPREFIX}/share/man/man5
+	cp gsp ${DPREFIX}/bin
+	cp man/gsp.1 ${DPREFIX}/share/man/man1
+	cp man/gsp.5 ${DPREFIX}/share/man/man5
 
 dist:
 	mkdir -p dist
