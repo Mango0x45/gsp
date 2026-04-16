@@ -1,13 +1,14 @@
-GSP (pronounced _gee ess pee_) is an alternative syntax for HTML.
+GSP (pronounced _gee ess pee_) is an HTML-compatible markup language.
+The standard GSP distribution includes a GSP to HTML transpiler as
+well as utility programs.
+
 Writing HTML can be made more bearable using things like Emmet, but
 it’s still not great, and the syntax is far too bloated, visually
 polluting your documents.  It is for this reason that GSP exists.
 
-GSP supports templating via macros.  When a macro `$foo` is used in a
-GSP document, the script `foo` is searched for in GSP’s search path
-and executed, with the result printed to stdout replacing the macro in
-the document.  Details about writing macros can be found in the
-`gsp(5)` manual.
+On top of standard markup, GSP has native support for templating via
+external processes.  This allows the macro implementation to remain
+extremely small and simple, while retaining a high degree of power.
 
 ## Source Installation
 
@@ -21,29 +22,34 @@ $ git clone https://git.thomasvoss.com/gsp
 $ cd gsp
 ```
 
-Then you can compile the transpiler:
+Then you can compile the binaries:
 
 ```
 $ make
 ```
 
-Finally, you can install the transpiler and documentation with the
+Finally, you can install the binaries and documentation with the
 following:
 
 ```
-$ sudo make install
+# make install
 ```
 
 ## Documentation
 
-Documentation for the transpiler can be found in the `gsp(1)` manual
-and documentation for the language can be found in the `gsp(5)`
-manual:
+Various manuals ship with the standard GSP distribution:
 
 ```
-$ man gsp    # transpiler documentation
-$ man 5 gsp  # language documentation
+$ man 1 gsp                     # transpiler documentation
+$ man 1 gspesc                  # input escaping documentation
+$ man 5 gsp                     # language documentation
+$ man 7 gsp-macros              # macro system documentation
 ```
+
+The `example.gsp` example document is also provided at the root of the
+repository, and is installed along with the other manual pages
+(typically at `/usr/share/gsp/doc`, but the exact location will vary
+per system).
 
 ## Syntax Example
 
@@ -51,46 +57,49 @@ $ man 5 gsp  # language documentation
 html lang="en" {
 	head {
 		meta charset="UTF-8" {}
-		meta name="viewport" content="width=device-width, initial-scale=1.0" {}
-		link href="/favicon.svg" rel="shortcut icon" type="image/svg" {}
-		link href="/style.svg" rel="stylesheet" {}
-		title {-My Website Title}
-		/ style {
-			This entire style node is commented out.
-		}
-		script {
-			const myJSVar = 'Hello, World!';
-			const x = () => {
-				return 'Escaping of characters in JavaScript/CSS'
-				+ 'blocks not required!';
-			};
-		}
+		meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		{}
+		link href="/style.css" rel="stylesheet" {}
+		title {- GSP Language Reference}
 	}
 	body {
-		p #my-id  {- This is a paragraph with the id ‘my-id’     }
-		p .my-cls {- This is a paragraph with the class ‘my-cls’ }
+		p #first-p .red {-
+			GSP allows us to define IDs and classes on
+			tags in a manner that matches CSS selector
+			syntax.
+		}
 
-		p
-			#some-id
-			.class-1
-			.class-2
-			key-1="value-1"
-			key-2="value-2"
-		{-
-			This paragraph has an ID, two classes, and two additional
-			attributes.  GSP allows us to use the ‘#ident’ and
-			‘.ident’ syntaxes as shorthands for applying IDs, and
-			classes.  This is a text node, so nothing is being
-			interpreted as GSP nodes, but we can include them inline
-			if we want.  As an example, here is some @em {-emphatic}
-			text.  Your inline nodes can also have attributes
-			@em #id .cls {-just like a regular node}.
+		/ div {
+			p {-
+				It also supports comments that operate
+				on a syntactical level.
+			}
+			p {- Isn’t that neat? }
+		}
+
+		p {-
+			GSP also features a powerful macro system,
+			allowing us to perform tasks like syntax
+			highlighting source code from within a
+			document.
+		}
+
+		$$syntax_highlight lang="c" {-
+#include <stdio.h>
+#include <stdlib.h>
+
+int
+main(int argc, char **argv)
+{
+	puts("Hello, World!");
+	return EXIT_SUCCESS;
+}
 		}
 	}
-	footer {-
-		Written on @$date format="%d %B %Y" {}
-	}
 }
+.Ed
 ```
 
 ## Why The Name GSP?
