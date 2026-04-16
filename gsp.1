@@ -27,17 +27,8 @@ formatted documents into valid HTML.
 Files provided as command-line arguments are transpiled with the
 results written to the standard output.
 If no arguments or the special filename
-.Pa -
+.Dq Pa -
 is provided, then input will be read from the standard input.
-.Pp
-By default
-.Nm
-will search for macros referenced in the supplied documents in
-.Pa ./macros ,
-but additional directories can be added to the macro search path by
-way of the
-.Fl I
-option.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -53,6 +44,7 @@ Display help information by opening this manual page.
 Add
 .Ar dirname
 to the macro search path.
+By default the macro search path is empty.
 .El
 .Sh EXIT STATUS
 .Ex -std gsp

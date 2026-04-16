@@ -21,10 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fopts := formatter.Options{
-		Doctype:    true,
-		SearchPath: []string{"./macros"},
-	}
+	fopts := formatter.Options{Doctype: true}
 
 	for _, f := range flags {
 		switch f.Key {
