@@ -411,6 +411,11 @@ func TestParse(t *testing.T) {
 			input:   `div . {}`,
 			wantErr: true,
 		},
+		{
+			name:    "Invalid children in void element",
+			input:   `meta charset="UTF-8" { title {- Hello! } }`,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

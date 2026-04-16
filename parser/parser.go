@@ -196,6 +196,10 @@ outer:
 		}
 	}
 
+	if ty == ast.Void && len(kids) != 0 {
+		return ast.Node{}, newVoidHasChildren(in, name)
+	}
+
 	return ast.Node{
 		Type:       ty,
 		Name:       name,

@@ -40,6 +40,22 @@ func (e invalidEscape) Error() string {
 		e.row, e.col-1, e.rune)
 }
 
+type voidHasChildren struct {
+	row int
+	col int
+	tag string
+}
+
+func newVoidHasChildren(in *parse.Input, tag string) voidHasChildren {
+	row, col, _ := parse.Position(bytes.NewReader(in.Bytes()), in.Offset())
+	return voidHasChildren{row, col, tag}
+}
+
+func (e voidHasChildren) Error() string {
+	return fmt.Sprintf("%d:%d: void element ‘%s’ may not have any child nodes",
+		e.row, e.col-1, e.tag)
+}
+
 type eof struct{}
 
 func (e eof) Error() string {
