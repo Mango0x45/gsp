@@ -47,17 +47,19 @@ func main() {
 }
 
 func process(filename string, fopts formatter.Options) {
-	var file *os.File
-	var err error
+	var (
+		file *os.File
+		err  error
+	)
 
 	if filename == "-" {
 		file = os.Stdin
 	} else {
-		file, err = os.Open(filename)
-		if err != nil {
+		if file, err = os.Open(filename); err != nil {
 			die(err)
+		} else {
+			defer file.Close()
 		}
-		defer file.Close()
 	}
 
 	ast, err := parser.Parse(file)

@@ -3,9 +3,13 @@
 PREFIX = /usr/local
 DPREFIX = ${DESTDIR}${PREFIX}
 
-all: gsp
+all: gsp gspesc
+
 gsp:
-	go build
+	go build ./cmd/gsp
+
+gspesc:
+	go build ./cmd/gspesc
 
 install:
 	mkdir -p ${DPREFIX}/bin                                                     \
@@ -13,7 +17,8 @@ install:
 	         ${DPREFIX}/share/man/man5                                          \
 	         ${DPREFIX}/share/man/man7                                          \
 	         ${DPREFIX}/share/doc/gsp
-	cp gsp ${DPREFIX}/bin
+	cp gsp    ${DPREFIX}/bin
+	cp gspesc ${DPREFIX}/bin
 	cp man/*.1 ${DPREFIX}/share/man/man1
 	cp man/*.7 ${DPREFIX}/share/man/man7
 	sed 's#@DOCPATH@#${DPREFIX}/share/doc/gsp#' man/gsp.5 \
@@ -37,4 +42,4 @@ patch:
 clean:
 	rm -rf dist
 
-.PHONY: all clean dist gsp install patch test
+.PHONY: all clean dist gsp gspesc install patch test
