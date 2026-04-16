@@ -1,316 +1,276 @@
-.Dd $Mdocdate: April 18 2024 $
+.Dd April 16, 2026
 .Dt GSP 5
-.Os
+.Os GSP 4.0
 .Sh NAME
 .Nm gsp
 .Nd language reference for gsp
+.Sh EXAMPLES
+For a simple example of a complete GSP document,
+see
+.Pa @EXAMPLE_PATH@ .
 .Sh DESCRIPTION
 The
 .Nm
-language is an alternative language to HTML which can be transpiled by making
-use of the
+language is an HTML-compatible markup language.
+GSP documents can be transpiled to valid HTML5 by way of the
 .Xr gsp 1
 transpiler.
 The
 .Nm
-language allows you to structure data in the same manner as HTML while offering
-an easier-to-read and less verbose syntax, and also some nice shortcuts.
-An example
-.Nm
-document might look as follows:
-.Bd -literal -offset indent
-html lang="en" {
-  head {
-    meta charset="UTF-8" {}
-    meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    {}
-    link href="/favicon.svg" rel="shortcut icon" type="image/svg" {}
-    link href="/style.svg" rel="stylesheet" {}
-    title {-My Website Title}
-  }
-  body {
-    p #my-id  {- This is a paragraph with the id ‘my-id’     }
-    p .my-cls {- This is a paragraph with the class ‘my-cls’ }
-
-    / div {
-        p {- This entire div is commented out. }
-        p {- Isn’t that neat? }
-    }
-
-    p
-      #some-id
-      .class-1
-      .class-2
-      key-1="value-1"
-      key-2 = "value-2"
-    {-
-      This paragraph has an ID, two classes, and two additional
-      attributes.  GSP allows us to use the ‘#ident’ and ‘.ident’
-      syntaxes as shorthands for applying IDs, and classes.  This is a
-      text node, so nothing is being interpreted as GSP nodes, but we can
-      include them inline if we want.  As an example, here is some @em
-      {-emphatic} text.  Your inline nodes can also have attributes @em
-      #id .cls {-just like a regular node}.
-    }
-  }
-}
-.Ed
-.Pp
-As can be seen in the above example, nodes in
-.Nm
-take the form of
-.Ql name attributes {...}
-as opposed to the more verbose
-.Ql <name attributes>...</name> .
+language allows you to structure data in the same manner as HTML while
+offering an easier-to-read and less verbose syntax,
+as well as some helpful shorthand syntaxes for common tasks.
 .Sh LANGUAGE SYNTAX
 .Ss Nodes
 Nodes are the central building block of a
 .Nm
-document, and take the form of
-.Ql name attributes {...} .
-For example, a footer node with the attributes
-.Sq foo
-and
-.Sq bar
-and no child nodes is written as:
-.Pp
+document.
+A node consists of a name,
+an optional series of attributes,
+and a node body.
+A meta tag detailing the document character set may look like so:
 .Bd -literal -offset indent
-footer foo bar {}
+meta charset=\(dqUTF\-8\(dq {}
 .Ed
 .Pp
-To nest nodes within other nodes, simply place them within the braces.
-As such, the following defines a footer with the attributes
-.Sq foo
-and
-.Sq bar
-with two empty div-nodes as children:
-.Pp
+Nodes can be trivially nested within other nodes.
+The following shows the skeleton of a basic HTML document:
 .Bd -literal -offset indent
-footer foo bar { div{} div{} }
+html lang=\(dqen\(dq {
+	head { ... }
+	body { ... }
+}
 .Ed
 .Pp
-When compiling an empty node
-.Ql foo{} ,
-you get the result
-.Ql <foo> .
-If you want both an opening- and closing tag with no children, such as in
-.Ql <foo></foo> ,
-then you can use an empty text-node as in
-.Ql foo{-} .
-.Ss Node names
-Node names follow the exact same naming rules as names do in XML.
-See the XML reference in
-.Sx SEE ALSO
-for more details.
+Some specific elements such as
+.Sq br ,
+.Sq meta ,
+and
+.Sq link
+are defined as
+.Sq void elements
+by the HTML living standard.
+Such elements are forbidden from having child nodes.
+.Pp
+Note that attributes are not required to be space-separated,
+although it is considered good style to always space-separate them.
+.Pp
+For details on what characters are allowed in node names,
+see
+.Sx Character Sets .
 .Ss Comments
-Comments can be created by using the special
+A node and all of its subnodes can be commented out by prefixing it
+with
 .Sq /
-node name.
-During transpilation any nodes named
-.Sq /
-and their children are commented out:
-.Pp
+followed by zero or more spaces.
 .Bd -literal -offset indent
 div {
-  / p {-I am commented out}
-  p {-I am not commented out}
+	/ p {\- I am commented out }
+	p {\- I am not commented out }
 }
+.Ed
+.Pp
+Classical line comments are not supported,
+but can be emulated by commenting out a dummy node:
+.Bd -literal -offset indent
+/ _ {\- TODO: Update the year }
+footer {\- \(co 2025 The GSP Developers }
 .Ed
 .Ss Attributes
 Attributes are optional components of a node.
-They take the form of an attribute name and an optional attribute value.
+They take the form of an attribute name and an optional attribute
+value.
 To specify an attribute, simply write the attribute name:
-.Pp
 .Bd -literal -offset indent
 name
 .Ed
 .Pp
-If you want to provide a value, you must follow the name with an equals sign
+If you want to provide a value, you must follow the name with an
+equals sign
 .Pq Sq =
 and then wrap the value in double quotes
 .Pq Sq \(dq :
-.Pp
 .Bd -literal -offset indent
-name="value"
+name=\(dqvalue\(dq
 .Ed
 .Pp
-You can optionally include whitespace for visual clarity, and double quotes and
-backslashes
-.Pq Sq \e
-can be escaped using a backslash:
-.Pp
+The same attribute may be specified multiple times,
+in which case its value will be the concatination of all specified
+values with a space
+.Pq Sq \ \& .
+As as a result,
+the following two examples are equivalent:
 .Bd -literal -offset indent
-name = "he said \e"hello there\e""
-.Ed
-.Pp
-Like with node names, the details about which characters are allowed within an
-attribute name are detailed in the XML reference found in the
-.Sx SEE ALSO
-section of this manual.
-.Ss IDs and classes
-When transpiling, you will be wanting to use IDs and classes all of the time.
-Due to the frequency of use of these parts of HTML,
-.Nm
-offers a shorthand syntax for specifying them.
-The shorthand syntax looks like the equivalent CSS selectors for said IDs and
-classes.
-Valueless attributes prefixed with a period
-.Pq Sq \&.
-or hash
-.Pq Sq #
-are transpiled to classes and IDs respectively.
-Therefore the following two examples are identical:
-.Bd -literal -offset indent
-div #foo .bar .baz {
-  div .bar {}
-}
-.Ed
-.Bd -literal -offset indent
-div id="foo" class="bar baz" {
-  div class="bar" {}
-}
-.Ed
-.Pp
-It is important to note that HTML5 allows for an ID- or class name to contain
-just about anything, therefor
-.Ql .→Ħ{}
-is a valid class shorthand.
-This is important because it means that the following doesn’t actually create a
-node with no children:
-.Bd -literal -offset indent
-div .foo{}
-.Ed
-.Pp
-You must instead include a space:
-.Bd -literal -offset indent
-div .foo {}
-.Ed
-.Ss Document types
-.Nm
-does not support document types.
-The HTML5 document type is automatically generated when transpiling to HTML.
-If you want to use a different document type, you’ll have to do that yourself.
-There is an example of this in the
-.Xr gsp 1
-manual.
-.Ss Literal text
-If you want to include literal text within a node you can make use of the
-special node name
-.Sq - .
-Unlike with the usual node name, you do not need to include whitespace between
-the special node name and the attributes.
-The following example shows how you can set a page title and paragraph text:
-.Bd -literal -offset indent
-html {
-  head {
-    title {-My Amazing Website}
-  }
+blockquote
+	data\-author=\(dq~lmatei\(dq
+	data\-author=\(dq~tvoss\(dq
+{\- ... }
 
-  body {
-    p {-
-      Welcome to my website!  Here on my website you can find cute cat
-      pictures, amongst other things.
-    }
-  }
-}
+blockquote data\-author=\(dq~lmatei ~tvoss\(dq {\- ... }
 .Ed
 .Pp
-When writing literal text, all occurrences of
-.Sq } ,
-.Sq @ ,
-and
-.Sq \e
-must be backslash escaped as they have special meaning.
-.Ss Embedded nodes
-If you want to embed a node within literal text, you can make use of an embedded
-node.
-Embedded nodes are exactly the same as regular nodes, but they are prefixed with
-the at
-.Pq Sq @
-symbol.
-For example if you want to emphasize some text in a paragraph, you could do the
-following:
+Backslashes
+.Pq Sq \e
+can be used to escape quotation marks and other backslashes that
+appear in the value:
+.Bd -literal -offset indent
+name=\(dqhe said \e\(dqhello there\e\(dq\(dq
+.Ed
+.Pp
+For details on what characters are allowed in attribute names,
+see
+.Sx Character Sets .
+.Ss IDs and Classes
+IDs and classes are typically the most common attributes you want to
+specify on a node,
+and as such there exists a shorthand syntax for specifying IDs and
+classes matching CSS selector syntax.
+.Pp
+Since these are just shorthand syntaxes,
+the following examples are considered equivalent:
+.Bd -literal -offset indent
+h1 #intro .bold .underline {\- ...}
+
+h1 id=\(dqintro\(dq class=\(dqbold underline\(dq {\- ...}
+.Ed
+.Pp
+When using this shorthand syntax,
+the ID and class names follow the same rules as attribute names.
+To define an ID or class that uses disallowed characters in its name,
+the longform syntax should be used:
+.Bd -literal -offset indent
+h1 class=\(dqclass#name#using#hashes\(dq {\- ...}
+.Ed
+.Ss Document Types
+There exists no syntax for declaring document types in GSP documents.
+Transpilers between GSP and HTML such as
+.Xr gsp 1
+may decide how they wish to handle document types,
+if they wish to handle them at all.
+.Ss Text
+If a node body features either a minus or an equals-sign directly
+after the opening brace
+.Po
+.Sq {\-
+or
+.Sq {=
+.Pc
+then the contents of the node body are taken to be text as opposed to
+additional child nodes.
+.Pp
+The difference between the two forms of text body revolves around
+whitespace handling.
+When opened with
+.Sq {\- ,
+all leading and trailing whitespace is removed.
+This includes not just ASCII spaces,
+but other forms of whitespace such as non-breaking spaces too.
+To avoid whitespace trimming and to manage whitespace manually,
+a text body can be opened via
+.Sq {= .
+.Pp
+Within body text the following characters have special meaning which
+can be ignored by way of backslash-escaping:
+.Pp
+.Bl -tag -compact -width indent
+.It @
+Begins an embedded node
+.Pq see Sx Embedded Nodes
+.It \e
+Begins an escape sequence
+.It {
+Ignored for purposes of brace-balancing when escaped
+.It }
+Ignored for purposes of brace-balancing when escaped
+.El
+.Pp
+When unescaped,
+braces are always balanced and as such rarely require manual escaping:
+.Bd -literal -offset indent
+p {- GSP node bodies are delimited by \(oq{\(cq and \(oq}\(cq. }
+.Ed
+.Ss Embedded Nodes
+Embedded nodes allow you to embed nodes within text.
+These nodes are exactly the same as regular nodes,
+but are prefixed by an at symbol
+.Pq Sq @ .
+Since embedded nodes behave identically to regular nodes,
+they can also be commented out:
 .Bd -literal -offset indent
 p {-
-  This is some text, but @em .my-class {-some} of it is emphatic!
+	Kokkola (Swedish: @em{-Karleby}) is a town in Finland and the
+	regional capital of Central Ostrobothnia.
+	@/_{- TODO: Figure out the Finnish and Swedish names }
 }
 .Ed
-.Ss Whitespace control
-By default GSP transpiled to HTML will be automatically minified with the
-exception of literal text whose whitespace is untouched.
-Sometimes though, we want to have proper control over whitespace.
-The first trick to manual whitespace control is to make use of the special node
-name
-.Sq = .
-It acts identially to the special
-.Sq -
-node, except it removes all leading- and trailing whitespace:
+.Ss Macros
+NOTE: This subsection only discusses the function and syntax of
+macros.
+For documentation on creating macros and how they operate,
+see
+.Xr gsp_macros 7 .
+.Pp
+Macros offer a means to dynamically generate output using external
+executables.
+There are two types of macros:
+regular macros,
+and verbatim macros.
+Regular macros are macros that output valid GSP markup,
+which is then reparsed and evaluated.
+Verbatim macros on the other hand do not have their output processed.
+This means that when transpiling GSP to HTML,
+special care must be taken to ensure that all verbatim macros output
+valid HTML markup.
+.Pp
+Macros are syntactical identical to regular nodes,
+except that their names must be prefixed with a dollar sign
+.Pq Sq $ :
 .Bd -literal -offset indent
-Before
-
-p {=   Hello World
-
+p {-
+	Today\(cqs date is @$date{}.
 }
-
-After
-
-<p>Hello World</p>
 .Ed
 .Pp
-This can be useful for trimming whitespace, but sometimes we want to preserve
-it.
-This is especially crucial with HTML
-.Ql <pre>
-tags for which whitespace is not squashed.
-We can get around this issue by making use of the fact that the special
-.Sq -
-node does not trim whitespace.
-The following is an example of how not to display two seperate lines in a
-.Ql <pre>
-tag:
+Verbatim macros are specified and used in the same manner,
+except that they must be prefixed with two dollar signs:
 .Bd -literal -offset indent
-Before
-
 pre {
-	code{-Foo}
-	code{-Bar}
+	$$syntax_highlight lang="c" {- $$include file="main.c" {} }
 }
-
-After
-
-<pre><code>Foo</code><code>Bar</code></pre>
 .Ed
+.Ss Character Sets
+GSP defines 3 distinct sets of characters:
+.Bl -tag -width indent
+.It Identifier Starters
+Characters which are legal as the first character in a node or
+attribute name.
 .Pp
-Instead, you can do the following:
-.Bd -literal -offset indent
-Before
-
-pre {-
-  @code{-Foo}
-  @code{-Bar}
-}
-
-After
-
-<pre>
-  <code>Foo</code>
-  <code>Bar</code>
-</pre>
-.Ed
+This set is defined as the characters allowed as the first character
+in an XML tag name,
+plus the dollar sign
+.Pq Sq $ .
+.It Identifier Continuers
+Characters which are legal in a node or attribute name,
+but not necessarily in the first position.
 .Pp
-If you would like to have the whitespace between the opening- and closing
-.Ql pre
-tags and the inner
-.Ql code
-tags removed, you can use the
-.Sq =
-node instead of the
-.Sq -
-node.
+This set is defined as the characters which are legal in an XML tag
+name,
+but not necessarily in the first position.
+.It Whitespace
+Characters which are recognized as whitespace and are ignored for
+parsing purposes,
+and which are trimmed by automatic whitespace trimming.
+.Pp
+This set is defined as the set of all Unicode characters with the
+.Sq White_Space
+property.
+.El
 .Sh SEE ALSO
-.Xr gsp 1
+.Xr gsp 1 ,
+.Xr gsp_macros 7 ,
+.Xr unicode 7
+.Pp
+.Lk https://html.spec.whatwg.org "HTML Living Standard"
 .Pp
 .Lk https://www.w3.org/TR/xml "Extensible Markup Language (XML) Reference"
 .Sh AUTHORS
