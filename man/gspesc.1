@@ -1,0 +1,47 @@
+.Dd April 16, 2026
+.Dt GSPESC 1
+.Os GSP 4.0
+.Sh NAME
+.Nm gspesc
+.Nd escape text for GSP
+.Sh SYNOPSIS
+.Nm
+.Op Fl a
+.Op Ar
+.Nm
+.Fl h
+.Sh DESCRIPTION
+.Nm
+is a utility to escape metacharacters for safe inclusion in node text
+bodies in
+.Xr gsp 5
+formatted documents.
+Files provided as command-line arguments are escaped with the
+results written to the standard output.
+If no arguments or the special filename
+.Sq Pa \-
+is provided, then input will be read from the standard input.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl a
+Escape text for inclusion as a node attribute value instead of body
+text.
+.It Fl h
+Display help information by opening this manual page.
+.El
+.Sh EXIT STATUS
+.Ex -std gspesc
+.Sh EXAMPLES
+Escape the contents of a source code file for inclusion in a GSP text
+body:
+.Pp
+.Dl "$ gspesc main.c"
+.Sh SEE ALSO
+.Xr gsp 1 ,
+.Xr sed 1 ,
+.Xr tr 1 ,
+.Xr gsp 5 ,
+.Xr gsp-macros 7
+.Sh AUTHORS
+.An Thomas Voss Aq Mt mail@thomasvoss.com
