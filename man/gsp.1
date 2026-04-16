@@ -55,11 +55,11 @@ and
 .Pa tail.gsp
 into one HTML document:
 .Pp
-.Dl $ gsp head.gsp tail.gsp >out.html
+.Dl "$ gsp head.gsp tail.gsp >out.html"
 .Pp
 Use your own document type instead of the HTML5 one:
 .Pp
-.Dl $ { printf \(aq%s\(aq \(dq$doctype\(dq; gsp -d index.gsp; } >index.html
+.Dl "$ { printf \(aq%s\(aq \(dq$doctype\(dq; gsp -d index.gsp; } >index.html"
 .Sh SEE ALSO
 .Xr gsp 5 ,
 .Xr gsp-macros 7
