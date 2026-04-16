@@ -10,10 +10,13 @@ gsp:
 install:
 	mkdir -p ${DPREFIX}/bin                                                     \
 	         ${DPREFIX}/share/man/man1                                          \
-	         ${DPREFIX}/share/man/man5
+	         ${DPREFIX}/share/man/man5                                          \
+	         ${DPREFIX}/share/doc/gsp
 	cp gsp ${DPREFIX}/bin
 	cp man/gsp.1 ${DPREFIX}/share/man/man1
-	cp man/gsp.5 ${DPREFIX}/share/man/man5
+	sed 's#@DOCPATH@#${DPREFIX}/share/doc/gsp#' man/gsp.5 \
+		>${DPREFIX}/share/man/man5/gsp.5
+	cp example.gsp ${DPREFIX}/share/doc/gsp
 
 dist:
 	mkdir -p dist
