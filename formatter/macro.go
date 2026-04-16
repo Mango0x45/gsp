@@ -32,7 +32,7 @@ func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
 	env := os.Environ()
 	for k, v := range maps.All(node.Attributes) {
 		env = append(env, fmt.Sprintf("GSP_%s=%s",
-			strings.ToUpper(k),
+			strings.ToUpper(strings.ReplaceAll(k, "-", "_")),
 			strings.Join(v, " ")))
 	}
 
