@@ -17,60 +17,60 @@ type Options struct {
 	SearchPath []string
 }
 
-func WriteAst(out io.Writer, ast []ast.Node, opts Options) error {
+func WriteAst(w io.Writer, path string, ast []ast.Node, opts Options) error {
 	if opts.Doctype {
-		_, err := fmt.Fprint(out, "<!DOCTYPE html>")
+		_, err := fmt.Fprint(w, "<!DOCTYPE html>")
 		if err != nil {
 			return err
 		}
 	}
-	return writeNodes(out, ast, opts)
+	return writeNodes(w, path, ast, opts)
 }
 
-func writeNodes(out io.Writer, ast []ast.Node, opts Options) error {
+func writeNodes(w io.Writer, path string, ast []ast.Node, opts Options) error {
 	for _, n := range ast {
-		if err := writeNode(out, n, opts); err != nil {
+		if err := writeNode(w, path, n, opts); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func writeNode(out io.Writer, node ast.Node, opts Options) error {
+func writeNode(w io.Writer, path string, node ast.Node, opts Options) error {
 	var e1, e2, e3 error
 
 	switch node.Type {
 	case ast.Comment:
 		if opts.Comments {
-			e1 = writeCommentStart(out)
-			e2 = writeNodes(out, node.Children, opts)
-			e3 = writeCommentEnd(out)
+			e1 = writeCommentStart(w)
+			e2 = writeNodes(w, path, node.Children, opts)
+			e3 = writeCommentEnd(w)
 		}
 	case ast.Macro, ast.VerbatimMacro:
-		path, ok := findMacro(node.Name, opts.SearchPath)
+		mpath, ok := findMacro(node.Name, opts.SearchPath)
 		if !ok {
 			return fmt.Errorf("%s: failed to find macro", node.Name)
 		}
-		e1 = execMacro(out, path, node, opts)
+		e1 = execMacro(w, mpath, path, node, opts)
 	case ast.Normal, ast.Escapable:
-		e1 = writeOpenTag(out, node)
-		e2 = writeNodes(out, node.Children, opts)
-		e3 = writeCloseTag(out, node)
+		e1 = writeOpenTag(w, node)
+		e2 = writeNodes(w, path, node.Children, opts)
+		e3 = writeCloseTag(w, node)
 	case ast.Void:
-		e1 = writeOpenTag(out, node)
+		e1 = writeOpenTag(w, node)
 	case ast.Raw:
-		e1 = writeOpenTag(out, node)
-		e2 = writeRawText(out, node.Children[0].Name)
-		e3 = writeCloseTag(out, node)
+		e1 = writeOpenTag(w, node)
+		e2 = writeRawText(w, node.Children[0].Name)
+		e3 = writeCloseTag(w, node)
 	case ast.Text:
-		e1 = writeText(out, html.EscapeString(node.Name))
+		e1 = writeText(w, html.EscapeString(node.Name))
 	}
 
 	return cmp.Or(e1, e2, e3)
 }
 
-func writeOpenTag(out io.Writer, node ast.Node) error {
-	_, err := fmt.Fprintf(out, "<%s", node.Name)
+func writeOpenTag(w io.Writer, node ast.Node) error {
+	_, err := fmt.Fprintf(w, "<%s", node.Name)
 	if err != nil {
 		return err
 	}
@@ -78,9 +78,9 @@ func writeOpenTag(out io.Writer, node ast.Node) error {
 	for k, vs := range maps.All(node.Attributes) {
 		v := html.EscapeString(strings.Join(vs, " "))
 		if len(v) == 0 {
-			_, err = fmt.Fprintf(out, ` %s`, k)
+			_, err = fmt.Fprintf(w, ` %s`, k)
 		} else {
-			_, err = fmt.Fprintf(out, ` %s="%s"`, k, v)
+			_, err = fmt.Fprintf(w, ` %s="%s"`, k, v)
 		}
 
 		if err != nil {
@@ -88,37 +88,37 @@ func writeOpenTag(out io.Writer, node ast.Node) error {
 		}
 	}
 
-	_, err = fmt.Fprint(out, ">")
+	_, err = fmt.Fprint(w, ">")
 	return err
 }
 
-func writeCloseTag(out io.Writer, node ast.Node) error {
-	_, err := fmt.Fprintf(out, "</%s>", node.Name)
+func writeCloseTag(w io.Writer, node ast.Node) error {
+	_, err := fmt.Fprintf(w, "</%s>", node.Name)
 	return err
 }
 
-func writeCommentStart(out io.Writer) error {
-	_, err := fmt.Fprint(out, "<!-- ")
+func writeCommentStart(w io.Writer) error {
+	_, err := fmt.Fprint(w, "<!-- ")
 	return err
 }
 
-func writeCommentEnd(out io.Writer) error {
-	_, err := fmt.Fprint(out, " -->")
+func writeCommentEnd(w io.Writer) error {
+	_, err := fmt.Fprint(w, " -->")
 	return err
 }
 
-func writeRawText(out io.Writer, s string) error {
-	_, err := out.Write([]byte(s))
+func writeRawText(w io.Writer, s string) error {
+	_, err := w.Write([]byte(s))
 	return err
 }
 
-func writeText(out io.Writer, s string) error {
+func writeText(w io.Writer, s string) error {
 	bs := []byte(s)
 	for i := 0; i < len(bs); i++ {
 		if bs[i] == '\\' {
 			i++
 		}
-		if _, err := out.Write([]byte{bs[i]}); err != nil {
+		if _, err := w.Write([]byte{bs[i]}); err != nil {
 			return err
 		}
 	}

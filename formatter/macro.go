@@ -26,7 +26,8 @@ func findMacro(name string, dirs []string) (string, bool) {
 	return "", false
 }
 
-func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
+func execMacro(out io.Writer, mpath, fpath string,
+	node ast.Node, opts Options) error {
 	verbatim := node.Type == ast.VerbatimMacro
 
 	env := os.Environ()
@@ -40,9 +41,10 @@ func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
 	} else {
 		env = append(env, "GSP_TEXT_P=0")
 	}
+	env = append(env, fmt.Sprintf("GSP_PATH=%s", fpath))
 
 	cmd := exec.Cmd{
-		Path:   path,
+		Path:   mpath,
 		Env:    env,
 		Stderr: os.Stderr,
 	}
@@ -74,7 +76,7 @@ func execMacro(out io.Writer, path string, node ast.Node, opts Options) error {
 		if err != nil {
 			return err
 		}
-		if err = writeNodes(out, nodes, opts); err != nil {
+		if err = writeNodes(out, fpath, nodes, opts); err != nil {
 			return err
 		}
 	}

@@ -67,7 +67,7 @@ func process(path string, fopts formatter.Options) {
 		die(err)
 	}
 
-	if err = formatter.WriteAst(os.Stdout, ast, fopts); err != nil {
+	if err = formatter.WriteAst(os.Stdout, path, ast, fopts); err != nil {
 		die(err)
 	}
 	fmt.Print("\n")
