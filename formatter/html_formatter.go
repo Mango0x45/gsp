@@ -8,7 +8,7 @@ import (
 	"maps"
 	"strings"
 
-	"git.thomasvoss.com/gsp/ast"
+	"git.thomasvoss.com/gsp/v4/ast"
 )
 
 type Options struct {

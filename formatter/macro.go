@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"git.thomasvoss.com/gsp/ast"
-	"git.thomasvoss.com/gsp/parser"
+	"git.thomasvoss.com/gsp/v4/ast"
+	"git.thomasvoss.com/gsp/v4/parser"
 )
 
 func findMacro(name string, dirs []string) (string, bool) {

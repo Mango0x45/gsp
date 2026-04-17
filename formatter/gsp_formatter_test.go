@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"git.thomasvoss.com/gsp/ast"
+	"git.thomasvoss.com/gsp/v4/ast"
 )
 
 func TestWriteUntranslatedAST(t *testing.T) {

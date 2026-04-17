@@ -1,4 +1,4 @@
-module git.thomasvoss.com/gsp
+module git.thomasvoss.com/gsp/v4
 
 go 1.26.1
 

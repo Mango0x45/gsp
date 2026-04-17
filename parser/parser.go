@@ -10,7 +10,7 @@ import (
 	"github.com/tdewolff/parse/v2/css"
 	"github.com/tdewolff/parse/v2/js"
 
-	"git.thomasvoss.com/gsp/ast"
+	"git.thomasvoss.com/gsp/v4/ast"
 )
 
 var tagToType = map[string]ast.NodeType{

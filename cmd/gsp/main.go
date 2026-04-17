@@ -6,8 +6,8 @@ import (
 	"os/exec"
 
 	"git.sr.ht/~mango/opts/v2"
-	"git.thomasvoss.com/gsp/formatter"
-	"git.thomasvoss.com/gsp/parser"
+	"git.thomasvoss.com/gsp/v4/formatter"
+	"git.thomasvoss.com/gsp/v4/parser"
 )
 
 func main() {

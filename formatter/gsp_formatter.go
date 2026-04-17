@@ -7,8 +7,8 @@ import (
 	"maps"
 	"strings"
 
-	"git.thomasvoss.com/gsp/ast"
-	g_strconv "git.thomasvoss.com/gsp/strconv"
+	"git.thomasvoss.com/gsp/v4/ast"
+	g_strconv "git.thomasvoss.com/gsp/v4/strconv"
 )
 
 func WriteUntranslatedAST(out io.Writer, ast []ast.Node) error {
