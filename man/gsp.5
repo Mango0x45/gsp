@@ -2,13 +2,14 @@
 .Dt GSP 5
 .Os GSP 4.0
 .Sh NAME
-.Nm gsp
-.Nd language reference for gsp
+.Nm GSP
+.Nd language reference for GSP
 .Sh DESCRIPTION
 The
 .Nm
 language is an HTML-compatible markup language.
-GSP documents can be transpiled to valid HTML5 by way of the
+.Nm
+documents can be transpiled to valid HTML5 by way of the
 .Xr gsp 1
 transpiler.
 The
@@ -138,8 +139,12 @@ the longform syntax should be used:
 h1 class=\(dqclass#name#using#hashes\(dq {\- ...}
 .Ed
 .Ss Document Types
-There exists no syntax for declaring document types in GSP documents.
-Transpilers between GSP and HTML such as
+There exists no syntax for declaring document types in
+.Nm
+documents.
+Transpilers between
+.Nm
+and HTML such as
 .Xr gsp 1
 may decide how they wish to handle document types,
 if they wish to handle them at all.
@@ -211,10 +216,14 @@ executables.
 There are two types of macros:
 regular macros,
 and verbatim macros.
-Regular macros are macros that output valid GSP markup,
+Regular macros are macros that output valid
+.Nm
+markup,
 which is then reparsed and evaluated.
 Verbatim macros on the other hand do not have their output processed.
-This means that when transpiling GSP to HTML,
+This means that when transpiling
+.Nm
+to HTML,
 special care must be taken to ensure that all verbatim macros output
 valid HTML markup.
 .Pp
@@ -235,7 +244,8 @@ pre {
 }
 .Ed
 .Ss Character Sets
-GSP defines 3 distinct sets of characters:
+.Nm
+defines 3 distinct sets of characters:
 .Bl -tag -width indent
 .It Identifier Starters
 Characters which are legal as the first character in a node or
@@ -262,7 +272,9 @@ This set is defined as the set of all Unicode characters with the
 property.
 .El
 .Sh EXAMPLES
-For a simple example of a complete GSP document,
+For a simple example of a complete
+.Nm
+document,
 see the supplied examples in
 .Pa @DOCPATH@ .
 .Sh SEE ALSO
