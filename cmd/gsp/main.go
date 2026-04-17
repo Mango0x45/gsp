@@ -46,16 +46,16 @@ func main() {
 	}
 }
 
-func process(filename string, fopts formatter.Options) {
+func process(path string, fopts formatter.Options) {
 	var (
 		file *os.File
 		err  error
 	)
 
-	if filename == "-" {
+	if path == "-" {
 		file = os.Stdin
 	} else {
-		if file, err = os.Open(filename); err != nil {
+		if file, err = os.Open(path); err != nil {
 			die(err)
 		} else {
 			defer file.Close()
