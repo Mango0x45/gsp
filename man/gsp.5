@@ -149,6 +149,15 @@ and HTML such as
 may decide how they wish to handle document types,
 if they wish to handle them at all.
 .Ss Text
+The follow subsection does not apply to the
+.Ql style
+and
+.Ql script
+nodes.
+Details regarding the special handling of those nodes,
+see
+.Sx CSS and JavaScript .
+.Pp
 If a node body features either a minus or an equals-sign directly
 after the opening brace
 .Po
@@ -241,6 +250,56 @@ except that they must be prefixed with two dollar signs:
 .Bd -literal -offset indent
 pre {
 	$$syntax_highlight lang="c" {- $$include file="main.c" {} }
+}
+.Ed
+.Ss CSS and JavaScript
+CSS and JavaScript can be included in
+.Nm
+documents by way of the
+.Ql style
+and
+.Ql script
+nodes.
+Unlike other nodes,
+these nodes do not take text or node bodies,
+they instead take CSS markup in the case of
+.Ql style
+and JavaScript code in the case of
+.Ql script .
+As these nodes do not take standard text-bodies and instead have their
+respective languages handled natively,
+metacharacters described in
+.Sx Text
+do not require escaping,
+and neither the CSS markup or JavaScript code undergoes any HTML
+escaping during transpilation by transpilation tooling.
+.Pp
+To ease tooling implementation,
+full-blown CSS or JavaScript parsing is not required.
+The
+.Ql style
+and
+.Ql script
+tags instead simply need to handle brace nesting.
+This allows implementations to simply need to implement basic lexers
+for the two languages.
+.Pp
+The following is an example of using CSS and JavaScript from within a
+.Nm
+document:
+.Bd -literal -offset indent
+head {
+	style {
+		.article-list li {
+			font-weight: bold;
+			text-decoration: underline;
+			text-decoration-skip-ink: all;
+		}
+	}
+	script {
+		document.addEventListener(\(dqDOMContentLoaded\(dq, _ =>
+			console.log(\(dqDOM fully loaded and parsed\(dq));
+	}
 }
 .Ed
 .Ss Character Sets

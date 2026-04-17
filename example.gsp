@@ -7,6 +7,20 @@ html lang="en" {
 		{}
 		link href="/style.css" rel="stylesheet" {}
 		title {- GSP Language Reference}
+
+		head {
+			style {
+				.article-list li {
+					font-weight: bold;
+					text-decoration: underline;
+					text-decoration-skip-ink: all;
+				}
+			}
+			script {
+				document.addEventListener("DOMContentLoaded", _ =>
+					console.log("DOM fully loaded and parsed"));
+			 }
+		}
 	}
 	body {
 		p #first-p .red {-
