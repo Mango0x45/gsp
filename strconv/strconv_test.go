@@ -59,3 +59,66 @@ func TestEscapeString(t *testing.T) {
 		})
 	}
 }
+
+func TestEscapeText(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "Empty string",
+			input: "",
+			want:  "",
+		},
+		{
+			name:  "No escapes needed",
+			input: "hello world",
+			want:  "hello world",
+		},
+		{
+			name:  "At symbol",
+			input: `hello @world`,
+			want:  `hello \@world`,
+		},
+		{
+			name:  "Backslashes",
+			input: `C:\path\to\dir`,
+			want:  `C:\\path\\to\\dir`,
+		},
+		{
+			name:  "Braces",
+			input: `function() { return 0; }`,
+			want:  `function() \{ return 0; \}`,
+		},
+		{
+			name:  "Mixed special characters",
+			input: `\@{}`,
+			want:  `\\\@\{\}`,
+		},
+		{
+			name:  "Consecutive escapes",
+			input: `@@\\`,
+			want:  `\@\@\\\\`,
+		},
+		{
+			name:  "Only left brace",
+			input: `{`,
+			want:  `\{`,
+		},
+		{
+			name:  "Only right brace",
+			input: `}`,
+			want:  `\}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := EscapeText(tt.input); got != tt.want {
+				t.Errorf("EscapeText(%q) = %q, want %q",
+					tt.input, got, tt.want)
+			}
+		})
+	}
+}
