@@ -5,9 +5,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"git.sr.ht/~mango/opts/v2"
 )
+
+var rv int
 
 var (
 	attrchars = [256]bool{
@@ -121,7 +124,8 @@ func process(filename string) {
 		file = os.Stdin
 	} else {
 		if file, err = os.Open(filename); err != nil {
-			die(err)
+			warn("%s", err)
+			return
 		} else {
 			defer file.Close()
 		}
@@ -141,7 +145,8 @@ func process(filename string) {
 				os.Stdout.Write([]byte{ch})
 			}
 		default:
-			die(err)
+			warn("%s", err)
+			return
 		}
 	}
 }
@@ -153,11 +158,18 @@ func openManual() {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		die(err)
+		die("%s", err)
 	}
 }
 
-func die(e error) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], e)
+func warn(format string, args ...any) {
+	argv0 := filepath.Base(os.Args[0])
+	args = append([]any{argv0}, args...)
+	fmt.Fprintf(os.Stderr, "%s: "+format+"\n", args...)
+	rv = 1
+}
+
+func die(format string, args ...any) {
+	warn(format, args...)
 	os.Exit(1)
 }

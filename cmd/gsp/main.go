@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"git.sr.ht/~mango/opts/v2"
 	"git.thomasvoss.com/gsp/v4/formatter"
 	"git.thomasvoss.com/gsp/v4/parser"
 )
+
+var rv int
 
 func main() {
 	flags, rest, err := opts.Get(os.Args, "cdhI:")
@@ -44,6 +47,8 @@ func main() {
 	for _, a := range rest {
 		process(a, fopts)
 	}
+
+	os.Exit(rv)
 }
 
 func process(path string, fopts formatter.Options) {
@@ -56,21 +61,26 @@ func process(path string, fopts formatter.Options) {
 		file = os.Stdin
 	} else {
 		if file, err = os.Open(path); err != nil {
-			die(err)
+			warn("%s", err)
+			return
 		} else {
 			defer file.Close()
 		}
 	}
 
-	ast, err := parser.Parse(file)
+	ast, err := parser.Parse(file, path)
 	if err != nil {
-		die(err)
+		warn("%s", err)
+		return
 	}
 
 	if err = formatter.WriteAst(os.Stdout, path, ast, fopts); err != nil {
-		die(err)
+		warn("%s", err)
+		return
 	}
-	fmt.Print("\n")
+	if len(ast) != 0 || fopts.Doctype {
+		fmt.Print("\n")
+	}
 }
 
 func openManual() {
@@ -80,11 +90,18 @@ func openManual() {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		die(err)
+		die("%s", err)
 	}
 }
 
-func die(e error) {
-	fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], e)
+func warn(format string, args ...any) {
+	argv0 := filepath.Base(os.Args[0])
+	args = append([]any{argv0}, args...)
+	fmt.Fprintf(os.Stderr, "%s: "+format+"\n", args...)
+	rv = 1
+}
+
+func die(format string, args ...any) {
+	warn(format, args...)
 	os.Exit(1)
 }
