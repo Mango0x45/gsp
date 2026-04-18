@@ -88,13 +88,23 @@ func EscapeText(s string) string {
 }
 
 func escape(s string, mask [256]bool) string {
+	n := 0
+	bs := []byte(s)
+
+	for i := range bs {
+		if mask[bs[i]] {
+			n++
+		}
+	}
+
 	var bob strings.Builder
-	bob.Grow(len(s))
-	for _, b := range []byte(s) {
-		if mask[b] {
+	bob.Grow(len(bs) + n)
+
+	for i := range bs {
+		if mask[bs[i]] {
 			bob.WriteByte('\\')
 		}
-		bob.WriteByte(b)
+		bob.WriteByte(bs[i])
 	}
 	return bob.String()
 }
