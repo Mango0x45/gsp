@@ -1,3 +1,5 @@
+// Package formatter provides functions for translating GSP ASTs into
+// HTML or serializing them back into GSP markup.
 package formatter
 
 import (
@@ -11,16 +13,26 @@ import (
 	"git.thomasvoss.com/gsp/v4/ast"
 )
 
+// Options configures the behavior of the HTML formatter.
 type Options struct {
-	Comments   bool
-	Doctype    bool
+	// Comments specifies whether GSP comments should be
+	// transliterated into HTML comments.  If false, comments are
+	// omitted from the output.
+	Comments bool
+	// Doctype specifies whether an HTML5 doctype declaration should
+	// be automatically prepended to the output.
+	Doctype bool
+	// SearchPath provides a list of directory paths to search when
+	// resolving the executables for macro nodes.
 	SearchPath []string
 }
 
+// WriteAst formats a GSP AST as HTML and writes the resulting output
+// to the provided io.Writer.  The path parameter is passed to macro
+// executables via the GSP_PATH environment variable.
 func WriteAst(w io.Writer, path string, ast []ast.Node, opts Options) error {
 	if opts.Doctype {
-		_, err := fmt.Fprint(w, "<!DOCTYPE html>")
-		if err != nil {
+		if _, err := fmt.Fprint(w, "<!DOCTYPE html>"); err != nil {
 			return err
 		}
 	}

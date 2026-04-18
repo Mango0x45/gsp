@@ -11,6 +11,15 @@ import (
 	g_strconv "git.thomasvoss.com/gsp/v4/strconv"
 )
 
+// WriteUntranslatedAST serializes a GSP abstract syntax tree back
+// into valid GSP markup and writes it to the provided io.Writer.
+// This is primarily used to stream node bodies to external macro
+// executables.
+//
+// Node that the output markup may not be 1:1 identical to the
+// original input from which the AST was parsed.  The only guarantee
+// is that both the original source and the output of this function
+// are semantically equivalant.
 func WriteUntranslatedAST(out io.Writer, ast []ast.Node) error {
 	for _, n := range ast {
 		if err := writeUntranslatedNode(out, n); err != nil {

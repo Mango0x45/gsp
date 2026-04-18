@@ -1,3 +1,5 @@
+// Package strconv provides string manipulation utilities related to
+// the GSP markup language.
 package strconv
 
 import "strings"
@@ -73,10 +75,14 @@ var (
 	}
 )
 
+// EscapeString returns a copy of the input string properly escaped
+// for literal insertion as a GSP attribute value string.
 func EscapeString(s string) string {
 	return escape(s, attrchars)
 }
 
+// EscapeText returns a copy of the input string properly escaped
+// for literal insertion as a GSP node text body.
 func EscapeText(s string) string {
 	return escape(s, descchars)
 }

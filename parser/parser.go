@@ -1,3 +1,8 @@
+// Package parser implements a parser for the GSP markup language.
+//
+// The parser defined in this package generates an AST using the
+// structures defined in the ast package.  This should be considered
+// the reference implementation of GSP.
 package parser
 
 import (
@@ -34,6 +39,13 @@ var tagToType = map[string]ast.NodeType{
 	"wbr":      ast.Void,
 }
 
+// Parse reads GSP markup from the provided io.Reader and parses it
+// into an AST.
+//
+// It returns a slice of ast.Node representing the top-level elements
+// of the document. If the input contains invalid GSP syntax, an error
+// is returned detailing the line, column, and nature of the parsing
+// failure.
 func Parse(r io.Reader) ([]ast.Node, error) {
 	in := parse.NewInput(r)
 	var nodes []ast.Node
