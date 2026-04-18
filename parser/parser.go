@@ -43,10 +43,13 @@ var tagToType = map[string]ast.NodeType{
 // into an AST.
 //
 // It returns a slice of ast.Node representing the top-level elements
-// of the document. If the input contains invalid GSP syntax, an error
-// is returned detailing the line, column, and nature of the parsing
-// failure.
-func Parse(r io.Reader) ([]ast.Node, error) {
+// of the document.
+//
+// The path parameter is used only for error reporting, and
+// conventionally should be the path to the underlying file if the
+// provided reader is connected to a file, or "-" if the reader is
+// connected to the standard input.
+func Parse(r io.Reader, path string) ([]ast.Node, error) {
 	in := parse.NewInput(r)
 	var nodes []ast.Node
 
@@ -59,10 +62,24 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 		}
 
 		n, err := parseNode(in)
-		switch {
-		case err == io.EOF:
+		if err == io.EOF {
 			return []ast.Node{}, EOFError{}
-		case err != nil:
+		}
+		if err != nil {
+			switch err.(type) {
+			case InvalidEscapeError:
+				e := err.(InvalidEscapeError)
+				e.Where.Path = path
+				err = e
+			case InvalidSyntaxError:
+				e := err.(InvalidSyntaxError)
+				e.Where.Path = path
+				err = e
+			case VoidHasChildrenError:
+				e := err.(VoidHasChildrenError)
+				e.Where.Path = path
+				err = e
+			}
 			return []ast.Node{}, err
 		}
 		nodes = append(nodes, n)

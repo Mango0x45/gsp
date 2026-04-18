@@ -72,7 +72,8 @@ func execMacro(out io.Writer, mpath, fpath string,
 	stdin.Close()
 
 	if !verbatim {
-		nodes, err := parser.Parse(stdout)
+		nodes, err := parser.Parse(stdout,
+			fmt.Sprintf("<$%s(%s)>", mpath, fpath))
 		if err != nil {
 			return err
 		}
