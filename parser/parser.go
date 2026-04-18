@@ -61,7 +61,7 @@ func Parse(r io.Reader) ([]ast.Node, error) {
 		n, err := parseNode(in)
 		switch {
 		case err == io.EOF:
-			return []ast.Node{}, eof{}
+			return []ast.Node{}, EOFError{}
 		case err != nil:
 			return []ast.Node{}, err
 		}
@@ -192,7 +192,7 @@ outer:
 				}
 			}
 		default:
-			return ast.Node{}, newInvalidSyntax(in,
+			return ast.Node{}, newInvalidSyntaxError(in,
 				"node attributes or braces",
 				fmt.Sprintf("invalid character ‘%c’", ch))
 		}
@@ -209,7 +209,7 @@ outer:
 	}
 
 	if ty == ast.Void && len(kids) != 0 {
-		return ast.Node{}, newVoidHasChildren(in, name)
+		return ast.Node{}, newVoidHasChildrenError(in, name)
 	}
 
 	return ast.Node{
@@ -232,11 +232,11 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 		if attr {
 			expected = "attribute name"
 		}
-		return "", newInvalidSyntax(in,
+		return "", newInvalidSyntaxError(in,
 			expected,
 			fmt.Sprintf("invalid character ‘%c’", r))
 	} else if !attr && !validNameChar(r) {
-		return "", newInvalidSyntax(in,
+		return "", newInvalidSyntaxError(in,
 			"class/id shorthand",
 			fmt.Sprintf("invalid character ‘%c’", r))
 	}
@@ -255,7 +255,7 @@ func parseIdent(in *parse.Input, attr bool) (string, error) {
 
 	s := string(in.Shift())
 	if !attr && s == "$" || s == "$$" {
-		return "", newInvalidSyntax(in,
+		return "", newInvalidSyntaxError(in,
 			"macro name", "nothing")
 	}
 	return s, nil
@@ -268,7 +268,7 @@ func parseShorthand(in *parse.Input) (string, error) {
 	}
 
 	if !validNameChar(r) {
-		return "", newInvalidSyntax(in,
+		return "", newInvalidSyntaxError(in,
 			"id/class identifier",
 			fmt.Sprintf("invalid character ‘%c’", r))
 	}
@@ -321,7 +321,7 @@ func parseCSSBody(in *parse.Input) (string, error) {
 		tt, _ := l.Next()
 		if tt == css.ErrorToken {
 			if l.Err() == io.EOF {
-				return "", eof{}
+				return "", EOFError{}
 			}
 			return "", l.Err()
 		}
@@ -347,7 +347,7 @@ func parseJSBody(in *parse.Input) (string, error) {
 		tt, _ := l.Next()
 		if tt == js.ErrorToken {
 			if l.Err() == io.EOF {
-				return "", eof{}
+				return "", EOFError{}
 			}
 			return "", l.Err()
 		}
@@ -377,7 +377,7 @@ outer:
 		switch ch {
 		case 0:
 			if in.Err() == io.EOF {
-				return []ast.Node{}, eof{}
+				return []ast.Node{}, EOFError{}
 			}
 			return []ast.Node{}, in.Err()
 		case '@':
@@ -412,7 +412,7 @@ outer:
 			case 0, '@', '{', '}', '\\':
 			default:
 				ch, _ := in.PeekRune(0)
-				return []ast.Node{}, newInvalidEscape(in, ch)
+				return []ast.Node{}, newInvalidEscapeError(in, ch)
 			}
 			in.Move(1)
 		}
@@ -432,7 +432,7 @@ func parseString(in *parse.Input) (string, error) {
 	if r == 0 && in.Err() != nil {
 		return "", in.Err()
 	} else if r != '"' {
-		return "", newInvalidSyntax(in,
+		return "", newInvalidSyntaxError(in,
 			"double-quoted string",
 			fmt.Sprintf("‘%c’", r))
 	}
@@ -459,7 +459,7 @@ func parseString(in *parse.Input) (string, error) {
 			in.Move(n2)
 
 			if r2 != '\\' && r2 != '"' {
-				return "", newInvalidEscape(in, r2)
+				return "", newInvalidEscapeError(in, r2)
 			}
 			sb.WriteRune(r2)
 		default:
