@@ -27,7 +27,7 @@ func TestWalk_FullTraversal(t *testing.T) {
 	}
 
 	var visited []string
-	err := Walk(nodes, func(node Node) error {
+	err := Walk(nodes, func(node *Node) error {
 		visited = append(visited, node.Name)
 		return nil
 	})
@@ -71,7 +71,7 @@ func TestWalk_SkipChildren(t *testing.T) {
 	}
 
 	var visited []string
-	err := Walk(nodes, func(node Node) error {
+	err := Walk(nodes, func(node *Node) error {
 		visited = append(visited, node.Name)
 		if node.Type == Comment {
 			return SkipChildren
@@ -119,7 +119,7 @@ func TestWalk_StopTraversal(t *testing.T) {
 	}
 
 	var visited []string
-	err := Walk(nodes, func(node Node) error {
+	err := Walk(nodes, func(node *Node) error {
 		visited = append(visited, node.Name)
 		if node.Name == "head" {
 			return StopTraversal
@@ -159,7 +159,7 @@ func TestWalk_ErrorPropagation(t *testing.T) {
 	expectedErr := errors.New("halt execution")
 	var visited []string
 
-	err := Walk(nodes, func(node Node) error {
+	err := Walk(nodes, func(node *Node) error {
 		visited = append(visited, node.Name)
 		if node.Name == "head" {
 			return expectedErr

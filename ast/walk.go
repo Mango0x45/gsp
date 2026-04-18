@@ -18,13 +18,13 @@ var StopTraversal = errors.New("stop traversal")
 // WalkFunc is the type of the function called for each node visited
 // by Walk.  If the function returns SkipChildren, Walk will not
 // traverse the node’s children.
-type WalkFunc func(node Node) error
+type WalkFunc func(node *Node) error
 
 // Walk traverses the provided AST nodes, calling fn for each node
 // recursively.
 func Walk(nodes []Node, fn WalkFunc) error {
-	for _, node := range nodes {
-		if err := walk(node, fn); err != nil {
+	for i := range nodes {
+		if err := walk(&nodes[i], fn); err != nil {
 			if err == StopTraversal {
 				return nil
 			}
@@ -34,7 +34,7 @@ func Walk(nodes []Node, fn WalkFunc) error {
 	return nil
 }
 
-func walk(node Node, fn WalkFunc) error {
+func walk(node *Node, fn WalkFunc) error {
 	if err := fn(node); err != nil {
 		if err == SkipChildren {
 			return nil
@@ -42,8 +42,8 @@ func walk(node Node, fn WalkFunc) error {
 		return err
 	}
 
-	for _, child := range node.Children {
-		if err := walk(child, fn); err != nil {
+	for i := range node.Children {
+		if err := walk(&node.Children[i], fn); err != nil {
 			return err
 		}
 	}
