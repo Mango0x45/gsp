@@ -99,7 +99,6 @@ main(int argc, char **argv)
 		}
 	}
 }
-.Ed
 ```
 
 ## Why The Name GSP?
