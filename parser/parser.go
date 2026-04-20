@@ -404,6 +404,11 @@ outer:
 				Name: string(in.Shift()),
 			})
 			in.Move(1)
+
+			if err := skipSpaces(in); err != nil {
+				return []ast.Node{}, err
+			}
+
 			n, err := parseNode(in)
 			if err != nil {
 				return []ast.Node{}, err
