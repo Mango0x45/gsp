@@ -147,6 +147,38 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
+			name:  "Embedded nodes in text with spaces",
+			input: `p {- Hello@ em{-world}! }`,
+			want: []ast.Node{
+				{
+					Type:       ast.Normal,
+					Name:       "p",
+					Attributes: map[string][]string{},
+					Children: []ast.Node{
+						{
+							Type: ast.Text,
+							Name: "Hello",
+						},
+						{
+							Type:       ast.Normal,
+							Name:       "em",
+							Attributes: map[string][]string{},
+							Children: []ast.Node{
+								{
+									Type: ast.Text,
+									Name: "world",
+								},
+							},
+						},
+						{
+							Type: ast.Text,
+							Name: "!",
+						},
+					},
+				},
+			},
+		},
+		{
 			name:  "Macro node",
 			input: `$date format="%Y" {}`,
 			want: []ast.Node{
