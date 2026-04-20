@@ -57,4 +57,3 @@ main(int argc, char **argv)
 		}
 	}
 }
-.Ed
